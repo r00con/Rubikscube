@@ -28,7 +28,6 @@
             height: 20px;
             background-color: red;
             border-radius: 50%;
-            transition: all 0.1s;
         }
         .wall {
             position: absolute;
@@ -40,13 +39,15 @@
             height: 20px;
             background-color: green;
             border-radius: 50%;
+            top: 380px;
+            left: 380px;
         }
     </style>
 </head>
 <body>
     <div id="gameArea">
         <div id="player"></div>
-        <div id="finish" style="top: 380px; left: 380px;"></div>
+        <div id="finish"></div>
     </div>
 
     <script>
@@ -57,9 +58,27 @@
         let level = 0;
 
         const levels = [
-            { walls: [{ top: 60, left: 100, width: 200, height: 20 }, { top: 140, left: 100, width: 20, height: 120 }, { top: 200, left: 100, width: 200, height: 20 }, { top: 280, left: 300, width: 20, height: 100 }] },
-            { walls: [{ top: 60, left: 200, width: 20, height: 200 }, { top: 200, left: 100, width: 200, height: 20 }] },
-            { walls: [{ top: 100, left: 50, width: 20, height: 150 }, { top: 250, left: 100, width: 200, height: 20 }, { top: 100, left: 300, width: 20, height: 100 }] },
+            {
+                walls: [
+                    { top: 60, left: 100, width: 200, height: 20 },
+                    { top: 140, left: 100, width: 20, height: 120 },
+                    { top: 200, left: 100, width: 200, height: 20 },
+                    { top: 280, left: 300, width: 20, height: 100 }
+                ]
+            },
+            {
+                walls: [
+                    { top: 60, left: 200, width: 20, height: 200 },
+                    { top: 200, left: 100, width: 200, height: 20 }
+                ]
+            },
+            {
+                walls: [
+                    { top: 100, left: 50, width: 20, height: 150 },
+                    { top: 250, left: 100, width: 200, height: 20 },
+                    { top: 100, left: 300, width: 20, height: 100 }
+                ]
+            }
         ];
 
         function setupLevel() {
@@ -108,11 +127,6 @@
         document.addEventListener('keydown', (event) => {
             const rect = player.getBoundingClientRect();
             const walls = document.querySelectorAll('.wall');
-            let canMove = true;
-
-            const maxWidth = gameArea.clientWidth - rect.width;
-            const maxHeight = gameArea.clientHeight - rect.height;
-
             let newTop = rect.top;
             let newLeft = rect.left;
 
@@ -121,33 +135,36 @@
                     newTop = Math.max(0, rect.top - step);
                     break;
                 case 'ArrowDown':
-                    newTop = Math.min(maxHeight, rect.top + step);
+                    newTop = Math.min(gameArea.clientHeight - rect.height, rect.top + step);
                     break;
                 case 'ArrowLeft':
                     newLeft = Math.max(0, rect.left - step);
                     break;
                 case 'ArrowRight':
-                    newLeft = Math.min(maxWidth, rect.left + step);
+                    newLeft = Math.min(gameArea.clientWidth - rect.width, rect.left + step);
                     break;
                 default:
-                    canMove = false;
-                    break;
+                    return; // Exit this handler for other keys
             }
 
-            // Update position temporarily
-            if (canMove) {
-                player.style.top = `${newTop}px`;
-                player.style.left = `${newLeft}px`;
+            // Update the player’s position temporarily
+            player.style.top = `${newTop}px`;
+            player.style.left = `${newLeft}px`;
 
-                // Check for wall collisions
-                const newPlayerRect = player.getBoundingClientRect();
-                walls.forEach(wall => {
-                    if (isColliding(newPlayerRect, wall.getBoundingClientRect())) {
-                        // Reset to previous position if collision detected
-                        player.style.top = `${rect.top}px`;
-                        player.style.left = `${rect.left}px`;
-                    }
-                });
+            // Check for wall collisions
+            const playerRect = player.getBoundingClientRect();
+            let collisionDetected = false;
+            walls.forEach(wall => {
+                if (isColliding(playerRect, wall.getBoundingClientRect())) {
+                    collisionDetected = true;
+                }
+            });
+
+            if (collisionDetected) {
+                // Reset to the previous position
+                player.style.top = `${rect.top}px`;
+                player.style.left = `${rect.left}px`;
+            } else {
                 checkWin();
             }
         });
