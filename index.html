@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arrow Key Game</title>
+    <title>Shape Changer</title>
     <style>
         body {
             display: flex;
@@ -13,60 +13,53 @@
             margin: 0;
             background-color: #f0f0f0;
         }
-        #gameArea {
-            position: relative;
-            width: 400px;
-            height: 400px;
-            border: 2px solid #000;
-            overflow: hidden;
-            background-color: #fff;
-        }
-        #player {
+        #shape {
             position: absolute;
-            width: 30px;
-            height: 30px;
+            width: 100px;
+            height: 100px;
             background-color: red;
-            top: 0;
-            left: 0;
+            border-radius: 50%; /* Starts as a circle */
+            transition: all 0.2s;
         }
     </style>
 </head>
 <body>
-    <div id="gameArea">
-        <div id="player"></div>
-    </div>
+    <div id="shape"></div>
 
     <script>
-        const player = document.getElementById('player');
-        const gameArea = document.getElementById('gameArea');
-        const step = 10; // Movement step in pixels
+        const shape = document.getElementById('shape');
+        let isCircle = true;
+
+        // Initial position
+        let x = 0;
+        let y = 0;
+        const step = 10;
 
         document.addEventListener('keydown', (event) => {
-            const rect = player.getBoundingClientRect();
-            const gameRect = gameArea.getBoundingClientRect();
+            const rect = shape.getBoundingClientRect();
+            const maxWidth = window.innerWidth - rect.width;
+            const maxHeight = window.innerHeight - rect.height;
 
             switch (event.key) {
                 case 'ArrowUp':
-                    if (rect.top > gameRect.top) {
-                        player.style.top = `${rect.top - gameRect.top - step}px`;
-                    }
+                    if (y > 0) y -= step;
                     break;
                 case 'ArrowDown':
-                    if (rect.bottom < gameRect.bottom) {
-                        player.style.top = `${rect.top - gameRect.top + step}px`;
-                    }
+                    if (y < maxHeight) y += step;
                     break;
                 case 'ArrowLeft':
-                    if (rect.left > gameRect.left) {
-                        player.style.left = `${rect.left - gameRect.left - step}px`;
-                    }
+                    if (x > 0) x -= step;
                     break;
                 case 'ArrowRight':
-                    if (rect.right < gameRect.right) {
-                        player.style.left = `${rect.left - gameRect.left + step}px`;
-                    }
+                    if (x < maxWidth) x += step;
+                    break;
+                case ' ':
+                    isCircle = !isCircle; // Toggle shape
+                    shape.style.borderRadius = isCircle ? '50%' : '0%';
                     break;
             }
+
+            shape.style.transform = `translate(${x}px, ${y}px)`;
         });
     </script>
 </body>
