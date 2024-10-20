@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Maze Game wow skibidi</title>
+    <title>Maze Game</title>
     <style>
         body {
             display: flex;
@@ -46,14 +46,14 @@
 <body>
     <div id="gameArea">
         <div id="player"></div>
-        <div id="finish"></div>
+        <div id="finish" style="top: 380px; left: 380px;"></div>
     </div>
 
     <script>
         const player = document.getElementById('player');
         const finish = document.getElementById('finish');
         const gameArea = document.getElementById('gameArea');
-        const step = 5; // Slower movement
+        const step = 5; // Movement speed
         let level = 0;
 
         const levels = [
@@ -63,15 +63,13 @@
         ];
 
         function setupLevel() {
-            // Clear walls
+            // Clear previous walls
             const walls = document.querySelectorAll('.wall');
             walls.forEach(wall => wall.remove());
 
             // Reset player position
             player.style.top = '0px';
             player.style.left = '0px';
-            finish.style.top = '380px';
-            finish.style.left = '380px';
 
             // Draw new walls for the current level
             const currentLevel = levels[level];
@@ -109,32 +107,49 @@
 
         document.addEventListener('keydown', (event) => {
             const rect = player.getBoundingClientRect();
+            const walls = document.querySelectorAll('.wall');
+            let canMove = true;
+
             const maxWidth = gameArea.clientWidth - rect.width;
             const maxHeight = gameArea.clientHeight - rect.height;
 
+            let newTop = rect.top;
+            let newLeft = rect.left;
+
             switch (event.key) {
                 case 'ArrowUp':
-                    if (rect.top > gameArea.getBoundingClientRect().top) {
-                        player.style.top = `${Math.max(0, rect.top - step)}px`;
-                    }
+                    newTop = Math.max(0, rect.top - step);
                     break;
                 case 'ArrowDown':
-                    if (rect.bottom < gameArea.getBoundingClientRect().bottom) {
-                        player.style.top = `${Math.min(maxHeight, rect.top + step)}px`;
-                    }
+                    newTop = Math.min(maxHeight, rect.top + step);
                     break;
                 case 'ArrowLeft':
-                    if (rect.left > gameArea.getBoundingClientRect().left) {
-                        player.style.left = `${Math.max(0, rect.left - step)}px`;
-                    }
+                    newLeft = Math.max(0, rect.left - step);
                     break;
                 case 'ArrowRight':
-                    if (rect.right < gameArea.getBoundingClientRect().right) {
-                        player.style.left = `${Math.min(maxWidth, rect.left + step)}px`;
-                    }
+                    newLeft = Math.min(maxWidth, rect.left + step);
+                    break;
+                default:
+                    canMove = false;
                     break;
             }
-            checkWin();
+
+            // Update position temporarily
+            if (canMove) {
+                player.style.top = `${newTop}px`;
+                player.style.left = `${newLeft}px`;
+
+                // Check for wall collisions
+                const newPlayerRect = player.getBoundingClientRect();
+                walls.forEach(wall => {
+                    if (isColliding(newPlayerRect, wall.getBoundingClientRect())) {
+                        // Reset to previous position if collision detected
+                        player.style.top = `${rect.top}px`;
+                        player.style.left = `${rect.left}px`;
+                    }
+                });
+                checkWin();
+            }
         });
 
         setupLevel(); // Start the first level
