@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arrow Key Gamyye</title>
+    <title>Arrow Key Game</title>
     <style>
         body {
             display: flex;
@@ -43,25 +43,27 @@
 
         document.addEventListener('keydown', (event) => {
             const rect = player.getBoundingClientRect();
+            const gameRect = gameArea.getBoundingClientRect();
+
             switch (event.key) {
                 case 'ArrowUp':
-                    if (rect.top > gameArea.getBoundingClientRect().top) {
-                        player.style.top = `${rect.top - step}px`;
+                    if (rect.top > gameRect.top) {
+                        player.style.top = `${rect.top - gameRect.top - step}px`;
                     }
                     break;
                 case 'ArrowDown':
-                    if (rect.bottom < gameArea.getBoundingClientRect().bottom) {
-                        player.style.top = `${rect.top + step}px`;
+                    if (rect.bottom < gameRect.bottom) {
+                        player.style.top = `${rect.top - gameRect.top + step}px`;
                     }
                     break;
                 case 'ArrowLeft':
-                    if (rect.left > gameArea.getBoundingClientRect().left) {
-                        player.style.left = `${rect.left - step}px`;
+                    if (rect.left > gameRect.left) {
+                        player.style.left = `${rect.left - gameRect.left - step}px`;
                     }
                     break;
                 case 'ArrowRight':
-                    if (rect.right < gameArea.getBoundingClientRect().right) {
-                        player.style.left = `${rect.left + step}px`;
+                    if (rect.right < gameRect.right) {
+                        player.style.left = `${rect.left - gameRect.left + step}px`;
                     }
                     break;
             }
