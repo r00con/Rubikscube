@@ -1,11 +1,71 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arrow Key Game</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        #gameArea {
+            position: relative;
+            width: 400px;
+            height: 400px;
+            border: 2px solid #000;
+            overflow: hidden;
+            background-color: #fff;
+        }
+        #player {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background-color: red;
+            top: 0;
+            left: 0;
+        }
+    </style>
+</head>
 <body>
+    <div id="gameArea">
+        <div id="player"></div>
+    </div>
 
-<h7 style="background-color:Rebbecapurple;">skibidi</h7>
+    <script>
+        const player = document.getElementById('player');
+        const gameArea = document.getElementById('gameArea');
+        const step = 10; // Movement step in pixels
 
-<p style="background-color:Tomato;">
-Lets learn How to solve a Rubik’s cube.....Hello
-
+        document.addEventListener('keydown', (event) => {
+            const rect = player.getBoundingClientRect();
+            switch (event.key) {
+                case 'ArrowUp':
+                    if (rect.top > gameArea.getBoundingClientRect().top) {
+                        player.style.top = `${rect.top - step}px`;
+                    }
+                    break;
+                case 'ArrowDown':
+                    if (rect.bottom < gameArea.getBoundingClientRect().bottom) {
+                        player.style.top = `${rect.top + step}px`;
+                    }
+                    break;
+                case 'ArrowLeft':
+                    if (rect.left > gameArea.getBoundingClientRect().left) {
+                        player.style.left = `${rect.left - step}px`;
+                    }
+                    break;
+                case 'ArrowRight':
+                    if (rect.right < gameArea.getBoundingClientRect().right) {
+                        player.style.left = `${rect.left + step}px`;
+                    }
+                    break;
+            }
+        });
+    </script>
 </body>
 </html>
