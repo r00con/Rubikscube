@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Stylish Website</title>
+    <title>Quiz Website</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -16,10 +16,13 @@
         header {
             background-color: #4CAF50;
             padding: 20px;
-            color: yellowgreen;
+            color: white;
         }
         main {
             padding: 20px;
+        }
+        .question {
+            margin-bottom: 20px;
         }
         footer {
             background-color: #4CAF50;
@@ -29,22 +32,49 @@
             bottom: 0;
             width: 100%;
         }
-        a {
-            color: #4CAF50;
-            text-decoration: none;
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
     <header>
-        <h1>Welcome to My Stylish Website</h1>
+        <h1>Quiz Time!</h1>
     </header>
     <main>
-        <h3>This is my first website. A like wallibear, Cheapickle and Tuccker!</h3>
-        <a href="https://www.example.com">Visit Example</a>
+        <div class="question">
+            <p>1. What is the capital of France?</p>
+            <input type="text" id="q1">
+        </div>
+        <div class="question">
+            <p>2. What is 2 + 2?</p>
+            <input type="text" id="q2">
+        </div>
+        <div class="question">
+            <p>3. What is the largest planet in our solar system?</p>
+            <input type="text" id="q3">
+        </div>
+        <button onclick="checkAnswers()">Submit</button>
+        <p id="result"></p>
     </main>
     <footer>
-        <p>&copy; 2024 My Stylish Website</p>
+        <p>&copy; 2024 Quiz Website</p>
     </footer>
+    <script>
+        function checkAnswers() {
+            let score = 0;
+            const answers = ['Paris', '4', 'Jupiter'];
+
+            if (document.getElementById('q1').value === answers[0]) score++;
+            if (document.getElementById('q2').value === answers[1]) score++;
+            if (document.getElementById('q3').value === answers[2]) score++;
+
+            document.getElementById('result').innerText = `You scored ${score}/3`;
+        }
+    </script>
 </body>
 </html>
