@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz Website Supa Cool!</title>
+    <title>Quiz Website</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -26,7 +26,7 @@
         }
         footer {
             background-color: #4CAF50;
-            color: violetblue;
+            color: white;
             padding: 10px;
             position: fixed;
             bottom: 0;
@@ -47,16 +47,20 @@
     </header>
     <main>
         <div class="question">
-            <p>1. What is the capital of France?</p>
+            <p>1. Are you happy happy?</p>
             <input type="text" id="q1">
         </div>
         <div class="question">
-            <p>2. What is 2 + 2?</p>
+            <p>2. What is the capital of France?</p>
             <input type="text" id="q2">
         </div>
         <div class="question">
-            <p>3. What is the largest planet in our solar system?</p>
+            <p>3. What is 2 + 2?</p>
             <input type="text" id="q3">
+        </div>
+        <div class="question">
+            <p>4. What is the largest planet in our solar system?</p>
+            <input type="text" id="q4">
         </div>
         <button onclick="checkAnswers()">Submit</button>
         <p id="result"></p>
@@ -67,13 +71,14 @@
     <script>
         function checkAnswers() {
             let score = 0;
-            const answers = ['Paris', '4', 'Jupiter'];
+            const answers = ['Yes', 'Paris', '4', 'Jupiter'];
 
-            if (document.getElementById('q1').value === answers[0]) score++;
+            if (document.getElementById('q1').value.toLowerCase() === answers[0].toLowerCase()) score++;
             if (document.getElementById('q2').value === answers[1]) score++;
             if (document.getElementById('q3').value === answers[2]) score++;
+            if (document.getElementById('q4').value === answers[3]) score++;
 
-            document.getElementById('result').innerText = `You scored ${score}/3`;
+            document.getElementById('result').innerText = `You scored ${score}/4`;
         }
     </script>
 </body>
