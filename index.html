@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Supa Quiz!</title>
+    <title>Quiz Website</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -23,6 +23,11 @@
         }
         .question {
             margin-bottom: 20px;
+        }
+        .rainbow {
+            background: linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet);
+            -webkit-background-clip: text;
+            color: transparent;
         }
         footer {
             background-color: #4CAF50;
@@ -64,6 +69,7 @@
         </div>
         <button onclick="checkAnswers()">Submit</button>
         <p id="result"></p>
+        <canvas id="confettiCanvas"></canvas>
     </main>
     <footer>
         <p>&copy; 2024 Quiz Website</p>
@@ -78,7 +84,65 @@
             if (document.getElementById('q3').value === answers[2]) score++;
             if (document.getElementById('q4').value === answers[3]) score++;
 
-            document.getElementById('result').innerText = `You scored ${score}/4`;
+            if (score === 4) {
+                document.getElementById('result').innerText = `You scored ${score}/4`;
+                document.getElementById('result').classList.add('rainbow');
+                startConfetti();
+            } else if (score === 3) {
+                document.getElementById('result').innerText = 'So close!';
+            } else {
+                document.getElementById('result').innerText = `You scored ${score}/4`;
+            }
+        }
+
+        function startConfetti() {
+            const confettiCanvas = document.getElementById('confettiCanvas');
+            confettiCanvas.width = window.innerWidth;
+            confettiCanvas.height = window.innerHeight;
+            const context = confettiCanvas.getContext('2d');
+            let confettiArray = [];
+
+            function ConfettiParticle() {
+                this.x = Math.random() * confettiCanvas.width;
+                this.y = Math.random() * confettiCanvas.height - confettiCanvas.height;
+                this.size = Math.random() * 10 + 5;
+                this.speed = Math.random() * 3 + 2;
+                this.opacity = Math.random();
+                this.color = 'rgba(' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ',' + this.opacity + ')';
+            }
+
+            ConfettiParticle.prototype.draw = function () {
+                context.beginPath();
+                context.arc(this.x, this.y, this.size, 0, 2 * Math.PI);
+                context.fillStyle = this.color;
+                context.fill();
+            };
+
+            ConfettiParticle.prototype.update = function () {
+                this.y += this.speed;
+                if (this.y > confettiCanvas.height) {
+                    this.y = -this.size;
+                }
+                this.draw();
+            };
+
+            function addConfetti() {
+                confettiArray.push(new ConfettiParticle());
+            }
+
+            function renderConfetti() {
+                context.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+                for (let i = 0; i < confettiArray.length; i++) {
+                    confettiArray[i].update();
+                }
+                requestAnimationFrame(renderConfetti);
+            }
+
+            for (let i = 0; i < 150; i++) {
+                addConfetti();
+            }
+
+            renderConfetti();
         }
     </script>
 </body>
