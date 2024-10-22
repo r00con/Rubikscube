@@ -56,6 +56,27 @@
             background-color: white;
             height: 100px;
         }
+        .chat-bubble {
+            position: absolute;
+            top: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: white;
+            color: black;
+            border-radius: 10px;
+            padding: 5px 10px;
+            font-size: 1em;
+            display: none;
+        }
+        .box {
+            position: absolute;
+            width: 80%;
+            height: 60%;
+            border: 5px solid gray;
+            top: 20%;
+            left: 10%;
+            display: none;
+        }
         #message {
             display: none;
             position: fixed;
@@ -88,47 +109,72 @@
         .arrow.right {
             margin-left: 10px;
         }
+        .smile {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            color: yellow;
+            display: none;
+        }
     </style>
 </head>
 <body>
     <div id="game">
-        <div class="boss" id="boss"></div>
+        <div class="boss" id="boss">
+            <div class="chat-bubble" id="bossChat"></div>
+        </div>
         <div class="player" id="player"></div>
+        <div class="box" id="box"></div>
     </div>
     <div id="message"></div>
     <div id="controls">
         <div class="arrow left" onclick="movePlayer(-10)">&#9664;</div>
         <div class="arrow right" onclick="movePlayer(10)">&#9654;</div>
     </div>
+    <div class="smile" id="smile">&#128515;</div>
 
     <script>
         let gameArea = document.getElementById('game');
         let player = document.getElementById('player');
         let boss = document.getElementById('boss');
+        let box = document.getElementById('box');
+        let bossChat = document.getElementById('bossChat');
         let message = document.getElementById('message');
+        let smile = document.getElementById('smile');
 
         let bossHealth = 100;
-        let gameDuration = 300000; // 5 minutes in milliseconds
-
         let playerPositions = [];
 
         let spikeInterval = setInterval(() => {
             createSpike();
-        }, 1000);
+        }, 500);
 
         setTimeout(() => {
             clearInterval(spikeInterval);
-            bossHealth -= 50;
-            let laserInterval = setInterval(() => {
-                createLaser();
-            }, 1000);
+            bossChat.innerText = 'You will perish';
+            bossChat.style.display = 'block';
             setTimeout(() => {
-                clearInterval(laserInterval);
-                if (bossHealth <= 0) {
-                    endGame(true);
-                }
-            }, 180000);
-        }, 120000);
+                bossChat.style.display = 'none';
+                let laserInterval = setInterval(() => {
+                    createLaser();
+                }, 500);
+                setTimeout(() => {
+                    clearInterval(laserInterval);
+                    bossChat.innerText = 'Grrr';
+                    bossChat.style.display = 'block';
+                    setTimeout(() => {
+                        bossChat.style.display = 'none';
+                        startBoxPhase();
+                    }, 1000);
+                }, 30000); // Laser phase for 30 seconds
+            }, 1000);
+        }, 30000); // Spike phase for 30 seconds
 
         function createSpike() {
             let spike = document.createElement('div');
@@ -163,67 +209,4 @@
                 let laser = document.createElement('div');
                 laser.className = 'laser';
                 laser.style.left = laserWarning.style.left;
-                gameArea.appendChild(laser);
-                gameArea.removeChild(laserWarning);
-                moveLaser(laser);
-            }, 1000); // 1 second warning
-        }
-
-        function moveLaser(laser) {
-            let pos = 0;
-            let id = setInterval(frame, 5);
-            function frame() {
-                if (pos >= gameArea.clientHeight) {
-                    clearInterval(id);
-                    gameArea.removeChild(laser);
-                } else {
-                    pos += 2;
-                    laser.style.top = pos + 'px';
-                    checkCollision(laser);
-                }
-            }
-        }
-
-        function checkCollision(obstacle) {
-            let playerRect = player.getBoundingClientRect();
-            let obstacleRect = obstacle.getBoundingClientRect();
-            if (!(playerRect.right < obstacleRect.left || 
-                  playerRect.left > obstacleRect.right || 
-                  playerRect.bottom < obstacleRect.top || 
-                  playerRect.top > obstacleRect.bottom)) {
-                endGame(false);
-            }
-        }
-
-        function endGame(victory) {
-            if (victory) {
-                message.innerText = 'You have slain the Monsta!';
-                message.classList.add('rainbow');
-            } else {
-                message.innerText = 'You died!';
-            }
-            message.style.display = 'block';
-            clearInterval(spikeInterval);
-            clearInterval(laserInterval);
-        }
-
-        document.onkeydown = function(e) {
-            switch(e.key) {
-                case 'ArrowLeft':
-                    movePlayer(-10);
-                    break;
-                case 'ArrowRight':
-                    movePlayer(10);
-                    break;
-            }
-        };
-
-        function movePlayer(offset) {
-            let left = parseInt(window.getComputedStyle(player).left);
-            player.style.left = Math.max(0, Math.min(gameArea.clientWidth - player.clientWidth, left + offset)) + 'px';
-            playerPositions.push(player.style.left);
-            if (playerPositions.length > 100) playerPositions.shift(); // Limit array size
-        }
-    </script>
-</body>
-</html>
+                gameArea.append
