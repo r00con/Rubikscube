@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Boss Battle Supa!</title>
+    <title>Boss Battle</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -18,7 +18,7 @@
             width: 100%;
             height: 80vh;
             overflow: hidden;
-            background-color: black;
+            background: repeating-linear-gradient(45deg, #606dbc, #606dbc 10px, #465298 10px, #465298 20px);
         }
         .boss {
             position: absolute;
@@ -37,6 +37,8 @@
             width: 50px;
             height: 50px;
             background-color: blue;
+            text-align: center;
+            line-height: 50px;
         }
         .spike {
             position: absolute;
@@ -49,12 +51,12 @@
         .laser {
             position: absolute;
             width: 10px;
-            height: 100vh;
+            height: 100%;
             background-color: red;
         }
         .laser-warning {
             width: 10px;
-            height: 100vh;
+            height: 100%;
             background-color: white;
         }
         #message {
@@ -91,11 +93,12 @@
             cursor: pointer;
             user-select: none;
         }
-        .arrow.left {
-            margin-right: 10px;
+        .arrow.left, .arrow.right {
+            margin: 0 10px;
         }
-        .arrow.right {
-            margin-left: 10px;
+        .arrow.up, .arrow.down {
+            display: block;
+            margin: 10px auto;
         }
     </style>
 </head>
@@ -108,8 +111,12 @@
     </div>
     <div id="message"></div>
     <div id="controls">
-        <div class="arrow left" onclick="movePlayer(-10)">&#9664;</div>
-        <div class="arrow right" onclick="movePlayer(10)">&#9654;</div>
+        <div class="arrow up" onclick="movePlayer(0, -10)">&#9650;</div>
+        <div>
+            <div class="arrow left" onclick="movePlayer(-10, 0)">&#9664;</div>
+            <div class="arrow right" onclick="movePlayer(10, 0)">&#9654;</div>
+        </div>
+        <div class="arrow down" onclick="movePlayer(0, 10)">&#9660;</div>
     </div>
 
     <script>
@@ -141,7 +148,7 @@
                 bossMessage.innerText = "";
                 let laserInterval = setInterval(() => {
                     createLaser();
-                }, 1000);
+                }, 2000);
                 setTimeout(() => {
                     clearInterval(laserInterval);
                     bossMessage.innerText = "Grrr!";
@@ -156,132 +163,9 @@
                 setTimeout(() => {
                     bossMessage.innerText = "Oh no!";
                     setTimeout(() => {
-                        boss.style.backgroundColor = 'black';
+                        bossExplode();
                         message.innerText = 'You have slain the Monsta!';
                         message.style.display = 'block';
                         player.style.backgroundColor = 'green'; // Smiley face indicator
-                        player.innerText = ':)';
-                    }, 2000);
-                }, 30000);
-            }
-        }
-
-        function createSpike() {
-            let spike = document.createElement('div');
-            spike.className = 'spike';
-            spike.style.left = Math.random() * gameArea.clientWidth + 'px';
-            gameArea.appendChild(spike);
-            moveSpike(spike);
-        }
-
-        function moveSpike(spike) {
-            let pos = 0;
-            let id = setInterval(frame, 5);
-            function frame() {
-                if (pos >= gameArea.clientHeight) {
-                    clearInterval(id);
-                    gameArea.removeChild(spike);
-                } else {
-                    pos += 2;
-                    spike.style.top = pos + 'px';
-                    checkCollision(spike);
-                }
-            }
-        }
-
-        function createLaser() {
-            let laserWarning = document.createElement('div');
-            laserWarning.className = 'laser-warning';
-            laserWarning.style.left = player.style.left;
-            gameArea.appendChild(laserWarning);
-            setTimeout(() => {
-                let laser = document.createElement('div');
-                laser.className = 'laser';
-                laser.style.left = laserWarning.style.left;
-                gameArea.appendChild(laser);
-                gameArea.removeChild(laserWarning);
-                moveLaser(laser);
-            }, 1000); // 1 second warning
-        }
-
-        function moveLaser(laser) {
-            let pos = 0;
-            let id = setInterval(frame, 5);
-            function frame() {
-                if (pos >= gameArea.clientHeight) {
-                    clearInterval(id);
-                    gameArea.removeChild(laser);
-                } else {
-                    pos += 2;
-                    laser.style.top = pos + 'px';
-                    checkCollision(laser);
-                }
-            }
-        }
-
-        function createSpikeBox() {
-            let box = document.createElement('div');
-            box.className = 'spike';
-            box.style.width = '90%';
-            box.style.height = '90%';
-            box.style.position = 'absolute';
-            box.style.top = '5%';
-            box.style.left = '5%';
-            box.style.border = '5px solid gray';
-            gameArea.appendChild(box);
-            moveBox(box);
-        }
-
-        function moveBox(box) {
-            let pos = 0;
-            let direction = 1;
-            let id = setInterval(frame, 50);
-            function frame() {
-                if (pos >= gameArea.clientWidth - box.clientWidth || pos <= 0) {
-                    direction *= -1;
-                }
-                pos += direction * 5;
-                box.style.left = pos + 'px';
-                checkCollision(box);
-            }
-        }
-
-        function checkCollision(obstacle) {
-            let playerRect = player.getBoundingClientRect();
-            let obstacleRect = obstacle.getBoundingClientRect();
-            if (!(playerRect.right < obstacleRect.left || 
-                  playerRect.left > obstacleRect.right || 
-                  playerRect.bottom < obstacleRect.top || 
-                  playerRect.top > obstacleRect.bottom)) {
-                endGame(false);
-            }
-        }
-
-        function endGame(victory) {
-            if (!victory) {
-                message.innerText = 'You died!';
-                message.style.display = 'block';
-            }
-        }
-
-        document.onkeydown = function(e) {
-            switch(e.key) {
-                case 'ArrowLeft':
-                    movePlayer(-10);
-                    break;
-                case 'ArrowRight':
-                    movePlayer(10);
-                    break;
-            }
-        };
-
-        function movePlayer(offset) {
-            let left = parseInt(window.getComputedStyle(player).left);
-            player.style.left = Math.max(0, Math.min(gameArea.clientWidth - player.clientWidth, left + offset)) + 'px';
-        }
-
-        // Start the game
-        startGame();
-    </script>
-</body>
-</html>
+            <body>
+        <html>
