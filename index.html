@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Boss Battle Mega</title>
+    <title>Boss Battle</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -37,6 +37,10 @@
             width: 50px;
             height: 50px;
             background-color: blue;
+            color: black;
+            font-size: 2em;
+            text-align: center;
+            line-height: 50px;
         }
         .spike {
             position: absolute;
@@ -48,12 +52,13 @@
         }
         .laser {
             position: absolute;
-            width: 100%;
-            height: 10px;
+            width: 10px;
+            height: 100%;
             background-color: red;
         }
         .laser-warning {
-            height: 10px;
+            width: 10px;
+            height: 100%;
             background-color: white;
         }
         #message {
@@ -159,7 +164,7 @@
                         boss.style.backgroundColor = 'black';
                         message.innerText = 'You have slain the Monsta!';
                         message.style.display = 'block';
-                        player.style.backgroundColor = 'green'; // Smiley face indicator
+                        player.style.backgroundColor = 'green';
                         player.innerText = ':)';
                     }, 2000);
                 }, 30000);
@@ -222,7 +227,7 @@
 
         function createSpikeBox() {
             let box = document.createElement('div');
-            box.className = 'spike';
+            box.className = 'spike-box';
             box.style.width = '90%';
             box.style.height = '90%';
             box.style.position = 'absolute';
