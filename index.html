@@ -37,10 +37,6 @@
             width: 50px;
             height: 50px;
             background-color: blue;
-            color: black;
-            font-size: 2em;
-            text-align: center;
-            line-height: 50px;
         }
         .spike {
             position: absolute;
@@ -52,13 +48,12 @@
         }
         .laser {
             position: absolute;
-            width: 10px;
-            height: 100%;
+            width: 100%;
+            height: 10px;
             background-color: red;
         }
         .laser-warning {
-            width: 10px;
-            height: 100%;
+            height: 10px;
             background-color: white;
         }
         #message {
@@ -164,7 +159,7 @@
                         boss.style.backgroundColor = 'black';
                         message.innerText = 'You have slain the Monsta!';
                         message.style.display = 'block';
-                        player.style.backgroundColor = 'green';
+                        player.style.backgroundColor = 'green'; // Smiley face indicator
                         player.innerText = ':)';
                     }, 2000);
                 }, 30000);
@@ -197,13 +192,16 @@
         function createLaser() {
             let laserWarning = document.createElement('div');
             laserWarning.className = 'laser-warning';
-            let targetPos = playerPositions.length > 0 ? playerPositions[Math.floor(Math.random() * playerPositions.length)] : Math.random() * gameArea.clientWidth;
-            laserWarning.style.left = targetPos + 'px';
+            laserWarning.style.width = '100%';
+            laserWarning.style.height = '10px';
+            laserWarning.style.top = '0';
             gameArea.appendChild(laserWarning);
             setTimeout(() => {
                 let laser = document.createElement('div');
                 laser.className = 'laser';
-                laser.style.left = laserWarning.style.left;
+                laser.style.width = laserWarning.style.width;
+                laser.style.height = laserWarning.style.height;
+                laser.style.top = laserWarning.style.top;
                 gameArea.appendChild(laser);
                 gameArea.removeChild(laserWarning);
                 moveLaser(laser);
@@ -227,7 +225,7 @@
 
         function createSpikeBox() {
             let box = document.createElement('div');
-            box.className = 'spike-box';
+            box.className = 'spike';
             box.style.width = '90%';
             box.style.height = '90%';
             box.style.position = 'absolute';
