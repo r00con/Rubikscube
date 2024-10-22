@@ -48,6 +48,9 @@
             background-color: white;
             height: 100px;
         }
+        .laser {
+            background-color: red;
+        }
         #message {
             display: none;
             position: fixed;
@@ -71,7 +74,6 @@
         let boss = document.getElementById('boss');
         let message = document.getElementById('message');
 
-        // Mockup Game Logic
         let bossHealth = 100;
         let gameDuration = 300000; // 5 minutes in milliseconds
 
@@ -95,7 +97,6 @@
             }, 180000); // Remaining 3 minutes
         }, 120000); // First 2 minutes
 
-        // Create Spike
         function createSpike() {
             let spike = document.createElement('div');
             spike.className = 'spike';
@@ -104,7 +105,6 @@
             moveSpike(spike);
         }
 
-        // Move Spike
         function moveSpike(spike) {
             let pos = 0;
             let id = setInterval(frame, 5);
@@ -120,77 +120,6 @@
             }
         }
 
-        // Create Laser
         function createLaser() {
             let laserWarning = document.createElement('div');
-            laserWarning.className = 'laser-warning';
-            laserWarning.style.left = Math.random() * gameArea.clientWidth + 'px';
-            gameArea.appendChild(laserWarning);
-            setTimeout(() => {
-                let laser = document.createElement('div');
-                laser.className = 'laser';
-                laser.style.left = laserWarning.style.left;
-                gameArea.appendChild(laser);
-                gameArea.removeChild(laserWarning);
-                moveLaser(laser);
-            }, 1000); // 1 second warning
-        }
-
-        // Move Laser
-        function moveLaser(laser) {
-            let pos = 0;
-            let id = setInterval(frame, 5);
-            function frame() {
-                if (pos >= gameArea.clientHeight) {
-                    clearInterval(id);
-                    gameArea.removeChild(laser);
-                } else {
-                    pos += 2;
-                    laser.style.top = pos + 'px';
-                    checkCollision(laser);
-                }
-            }
-        }
-
-        // Check Collision
-        function checkCollision(obstacle) {
-            let playerRect = player.getBoundingClientRect();
-            let obstacleRect = obstacle.getBoundingClientRect();
-            if (!(playerRect.right < obstacleRect.left || 
-                  playerRect.left > obstacleRect.right || 
-                  playerRect.bottom < obstacleRect.top || 
-                  playerRect.top > obstacleRect.bottom)) {
-                endGame(false);
-            }
-        }
-
-        // End Game
-        function endGame(victory) {
-            if (victory) {
-                boss.style.backgroundColor = 'black';
-                message.style.display = 'block';
-                message.classList.add('rainbow');
-            }
-            clearInterval(spikeInterval);
-            clearInterval(laserInterval);
-        }
-
-        // Player Movement
-        document.onkeydown = function(e) {
-            switch(e.key) {
-                case 'ArrowLeft':
-                    movePlayer(-10);
-                    break;
-                case 'ArrowRight':
-                    movePlayer(10);
-                    break;
-            }
-        };
-
-        function movePlayer(offset) {
-            let left = parseInt(window.getComputedStyle(player).left);
-            player.style.left = Math.max(0, Math.min(gameArea.clientWidth - player.clientWidth, left + offset)) + 'px';
-        }
-    </script>
-</body>
-</html>
+            laser
