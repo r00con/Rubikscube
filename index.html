@@ -133,6 +133,7 @@
                     bossHealth -= 50;
                     bossMessage.innerText = "You will perish!";
                     setTimeout(() => {
+                        bossMessage.innerText = "";
                         phase++;
                         startGame();
                     }, 2000);
@@ -146,6 +147,7 @@
                     clearInterval(laserInterval);
                     bossMessage.innerText = "Grrr!";
                     setTimeout(() => {
+                        bossMessage.innerText = "";
                         phase++;
                         startGame();
                     }, 2000);
@@ -192,6 +194,7 @@
         function createLaser() {
             let laserWarning = document.createElement('div');
             laserWarning.className = 'laser-warning';
+            laserWarning.style.width = '100%';
             let targetPos = playerPositions.length > 0 ? playerPositions[Math.floor(Math.random() * playerPositions.length)] : Math.random() * gameArea.clientWidth;
             laserWarning.style.left = targetPos + 'px';
             gameArea.appendChild(laserWarning);
@@ -223,68 +226,4 @@
         function createSpikeBox() {
             let box = document.createElement('div');
             box.className = 'spike';
-            box.style.width = '90%';
-            box.style.height = '90%';
-            box.style.position = 'absolute';
-            box.style.top = '5%';
-            box.style.left = '5%';
-            box.style.border = '5px solid gray';
-            gameArea.appendChild(box);
-            moveBox(box);
-        }
-
-        function moveBox(box) {
-            let pos = 0;
-            let direction = 1;
-            let id = setInterval(frame, 50);
-            function frame() {
-                if (pos >= gameArea.clientWidth - box.clientWidth || pos <= 0) {
-                    direction *= -1;
-                }
-                pos += direction * 5;
-                box.style.left = pos + 'px';
-                checkCollision(box);
-            }
-        }
-
-        function checkCollision(obstacle) {
-            let playerRect = player.getBoundingClientRect();
-            let obstacleRect = obstacle.getBoundingClientRect();
-            if (!(playerRect.right < obstacleRect.left || 
-                  playerRect.left > obstacleRect.right || 
-                  playerRect.bottom < obstacleRect.top || 
-                  playerRect.top > obstacleRect.bottom)) {
-                endGame(false);
-            }
-        }
-
-        function endGame(victory) {
-            if (!victory) {
-                message.innerText = 'You died!';
-                message.style.display = 'block';
-            }
-        }
-
-        document.onkeydown = function(e) {
-            switch(e.key) {
-                case 'ArrowLeft':
-                    movePlayer(-10);
-                    break;
-                case 'ArrowRight':
-                    movePlayer(10);
-                    break;
-            }
-        };
-
-        function movePlayer(offset) {
-            let left = parseInt(window.getComputedStyle(player).left);
-            player.style.left = Math.max(0, Math.min(gameArea.clientWidth - player.clientWidth, left + offset)) + 'px';
-            playerPositions.push(player.style.left);
-            if (playerPositions.length > 100) playerPositions.shift(); // Limit array size
-        }
-
-        // Start the game
-        startGame();
-    </script>
-</body>
-</html>
+            box.style.width
