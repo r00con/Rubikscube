@@ -3,146 +3,193 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz Website</title>
+    <title>Boss Battle</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-            color: #333;
+            background-color: black;
+            color: white;
             text-align: center;
             margin: 0;
             padding: 0;
         }
-        header {
-            background-color: #4CAF50;
-            padding: 20px;
-            color: white;
-        }
-        main {
-            padding: 20px;
-        }
-        .question {
-            margin-bottom: 20px;
-        }
-        .rainbow {
-            background: linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet);
-            -webkit-background-clip: text;
-            color: transparent;
-        }
-        footer {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px;
-            position: fixed;
-            bottom: 0;
+        #game {
+            position: relative;
             width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            background-color: black;
         }
-        button {
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
+        .boss {
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 100px;
+            background-color: red;
+        }
+        .player {
+            position: absolute;
+            bottom: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 50px;
+            background-color: blue;
+        }
+        .spike, .laser {
+            position: absolute;
+            width: 10px;
+            height: 40px;
+            background-color: gray;
+        }
+        .laser-warning {
+            background-color: white;
+            height: 100px;
+        }
+        #message {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2em;
         }
     </style>
 </head>
 <body>
-    <header>
-        <h1>Quiz Time!</h1>
-    </header>
-    <main>
-        <div class="question">
-            <p>1. Are you happy happy?</p>
-            <input type="text" id="q1">
-        </div>
-        <div class="question">
-            <p>2. What is the capital of France?</p>
-            <input type="text" id="q2">
-        </div>
-        <div class="question">
-            <p>3. What is 2 + 2?</p>
-            <input type="text" id="q3">
-        </div>
-        <div class="question">
-            <p>4. What is the largest planet in our solar system?</p>
-            <input type="text" id="q4">
-        </div>
-        <button onclick="checkAnswers()">Submit</button>
-        <p id="result"></p>
-        <canvas id="confettiCanvas"></canvas>
-    </main>
-    <footer>
-        <p>&copy; 2024 Quiz Website</p>
-    </footer>
+    <div id="game">
+        <div class="boss" id="boss"></div>
+        <div class="player" id="player"></div>
+    </div>
+    <div id="message">You have slain the Monsta!</div>
+
     <script>
-        function checkAnswers() {
-            let score = 0;
-            const answers = ['Yes', 'Paris', '4', 'Jupiter'];
+        let gameArea = document.getElementById('game');
+        let player = document.getElementById('player');
+        let boss = document.getElementById('boss');
+        let message = document.getElementById('message');
 
-            if (document.getElementById('q1').value.toLowerCase() === answers[0].toLowerCase()) score++;
-            if (document.getElementById('q2').value === answers[1]) score++;
-            if (document.getElementById('q3').value === answers[2]) score++;
-            if (document.getElementById('q4').value === answers[3]) score++;
+        // Mockup Game Logic
+        let bossHealth = 100;
+        let gameDuration = 300000; // 5 minutes in milliseconds
 
-            if (score === 4) {
-                document.getElementById('result').innerText = `You scored ${score}/4`;
-                document.getElementById('result').classList.add('rainbow');
-                startConfetti();
-            } else if (score === 3) {
-                document.getElementById('result').innerText = 'So close!';
-            } else {
-                document.getElementById('result').innerText = `You scored ${score}/4`;
+        // Spikes for first 2 minutes
+        let spikeInterval = setInterval(() => {
+            createSpike();
+        }, 1000);
+
+        setTimeout(() => {
+            clearInterval(spikeInterval);
+            bossHealth -= 50;
+            // Lasers for remaining 3 minutes
+            let laserInterval = setInterval(() => {
+                createLaser();
+            }, 1000);
+            setTimeout(() => {
+                clearInterval(laserInterval);
+                if (bossHealth <= 0) {
+                    endGame(true);
+                }
+            }, 180000); // Remaining 3 minutes
+        }, 120000); // First 2 minutes
+
+        // Create Spike
+        function createSpike() {
+            let spike = document.createElement('div');
+            spike.className = 'spike';
+            spike.style.left = Math.random() * gameArea.clientWidth + 'px';
+            gameArea.appendChild(spike);
+            moveSpike(spike);
+        }
+
+        // Move Spike
+        function moveSpike(spike) {
+            let pos = 0;
+            let id = setInterval(frame, 5);
+            function frame() {
+                if (pos >= gameArea.clientHeight) {
+                    clearInterval(id);
+                    gameArea.removeChild(spike);
+                } else {
+                    pos += 2;
+                    spike.style.top = pos + 'px';
+                    checkCollision(spike);
+                }
             }
         }
 
-        function startConfetti() {
-            const confettiCanvas = document.getElementById('confettiCanvas');
-            confettiCanvas.width = window.innerWidth;
-            confettiCanvas.height = window.innerHeight;
-            const context = confettiCanvas.getContext('2d');
-            let confettiArray = [];
+        // Create Laser
+        function createLaser() {
+            let laserWarning = document.createElement('div');
+            laserWarning.className = 'laser-warning';
+            laserWarning.style.left = Math.random() * gameArea.clientWidth + 'px';
+            gameArea.appendChild(laserWarning);
+            setTimeout(() => {
+                let laser = document.createElement('div');
+                laser.className = 'laser';
+                laser.style.left = laserWarning.style.left;
+                gameArea.appendChild(laser);
+                gameArea.removeChild(laserWarning);
+                moveLaser(laser);
+            }, 1000); // 1 second warning
+        }
 
-            function ConfettiParticle() {
-                this.x = Math.random() * confettiCanvas.width;
-                this.y = Math.random() * confettiCanvas.height - confettiCanvas.height;
-                this.size = Math.random() * 10 + 5;
-                this.speed = Math.random() * 3 + 2;
-                this.opacity = Math.random();
-                this.color = 'rgba(' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ',' + this.opacity + ')';
-            }
-
-            ConfettiParticle.prototype.draw = function () {
-                context.beginPath();
-                context.arc(this.x, this.y, this.size, 0, 2 * Math.PI);
-                context.fillStyle = this.color;
-                context.fill();
-            };
-
-            ConfettiParticle.prototype.update = function () {
-                this.y += this.speed;
-                if (this.y > confettiCanvas.height) {
-                    this.y = -this.size;
+        // Move Laser
+        function moveLaser(laser) {
+            let pos = 0;
+            let id = setInterval(frame, 5);
+            function frame() {
+                if (pos >= gameArea.clientHeight) {
+                    clearInterval(id);
+                    gameArea.removeChild(laser);
+                } else {
+                    pos += 2;
+                    laser.style.top = pos + 'px';
+                    checkCollision(laser);
                 }
-                this.draw();
-            };
-
-            function addConfetti() {
-                confettiArray.push(new ConfettiParticle());
             }
+        }
 
-            function renderConfetti() {
-                context.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
-                for (let i = 0; i < confettiArray.length; i++) {
-                    confettiArray[i].update();
-                }
-                requestAnimationFrame(renderConfetti);
+        // Check Collision
+        function checkCollision(obstacle) {
+            let playerRect = player.getBoundingClientRect();
+            let obstacleRect = obstacle.getBoundingClientRect();
+            if (!(playerRect.right < obstacleRect.left || 
+                  playerRect.left > obstacleRect.right || 
+                  playerRect.bottom < obstacleRect.top || 
+                  playerRect.top > obstacleRect.bottom)) {
+                endGame(false);
             }
+        }
 
-            for (let i = 0; i < 150; i++) {
-                addConfetti();
+        // End Game
+        function endGame(victory) {
+            if (victory) {
+                boss.style.backgroundColor = 'black';
+                message.style.display = 'block';
+                message.classList.add('rainbow');
             }
+            clearInterval(spikeInterval);
+            clearInterval(laserInterval);
+        }
 
-            renderConfetti();
+        // Player Movement
+        document.onkeydown = function(e) {
+            switch(e.key) {
+                case 'ArrowLeft':
+                    movePlayer(-10);
+                    break;
+                case 'ArrowRight':
+                    movePlayer(10);
+                    break;
+            }
+        };
+
+        function movePlayer(offset) {
+            let left = parseInt(window.getComputedStyle(player).left);
+            player.style.left = Math.max(0, Math.min(gameArea.clientWidth - player.clientWidth, left + offset)) + 'px';
         }
     </script>
 </body>
