@@ -16,7 +16,7 @@
         #game {
             position: relative;
             width: 100%;
-            height: 100vh;
+            height: 80vh;
             overflow: hidden;
             background-color: black;
         }
@@ -38,18 +38,23 @@
             height: 50px;
             background-color: blue;
         }
-        .spike, .laser {
+        .spike {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-bottom: 30px solid gray;
+        }
+        .laser {
             position: absolute;
             width: 10px;
             height: 40px;
-            background-color: gray;
+            background-color: red;
         }
         .laser-warning {
             background-color: white;
             height: 100px;
-        }
-        .laser {
-            background-color: red;
         }
         #message {
             display: none;
@@ -59,6 +64,30 @@
             transform: translate(-50%, -50%);
             font-size: 2em;
         }
+        #controls {
+            position: fixed;
+            bottom: 10%;
+            width: 100%;
+            text-align: center;
+        }
+        .arrow {
+            display: inline-block;
+            width: 60px;
+            height: 60px;
+            background-color: white;
+            color: black;
+            border-radius: 50%;
+            font-size: 2em;
+            line-height: 60px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .arrow.left {
+            margin-right: 10px;
+        }
+        .arrow.right {
+            margin-left: 10px;
+        }
     </style>
 </head>
 <body>
@@ -66,7 +95,11 @@
         <div class="boss" id="boss"></div>
         <div class="player" id="player"></div>
     </div>
-    <div id="message">You have slain the Monsta!</div>
+    <div id="message"></div>
+    <div id="controls">
+        <div class="arrow left" onclick="movePlayer(-10)">&#9664;</div>
+        <div class="arrow right" onclick="movePlayer(10)">&#9654;</div>
+    </div>
 
     <script>
         let gameArea = document.getElementById('game');
@@ -77,7 +110,8 @@
         let bossHealth = 100;
         let gameDuration = 300000; // 5 minutes in milliseconds
 
-        // Spikes for first 2 minutes
+        let playerPositions = [];
+
         let spikeInterval = setInterval(() => {
             createSpike();
         }, 1000);
@@ -85,7 +119,6 @@
         setTimeout(() => {
             clearInterval(spikeInterval);
             bossHealth -= 50;
-            // Lasers for remaining 3 minutes
             let laserInterval = setInterval(() => {
                 createLaser();
             }, 1000);
@@ -94,8 +127,8 @@
                 if (bossHealth <= 0) {
                     endGame(true);
                 }
-            }, 180000); // Remaining 3 minutes
-        }, 120000); // First 2 minutes
+            }, 180000);
+        }, 120000);
 
         function createSpike() {
             let spike = document.createElement('div');
@@ -122,4 +155,75 @@
 
         function createLaser() {
             let laserWarning = document.createElement('div');
-            laser
+            laserWarning.className = 'laser-warning';
+            let targetPos = playerPositions.length > 0 ? playerPositions[Math.floor(Math.random() * playerPositions.length)] : Math.random() * gameArea.clientWidth;
+            laserWarning.style.left = targetPos + 'px';
+            gameArea.appendChild(laserWarning);
+            setTimeout(() => {
+                let laser = document.createElement('div');
+                laser.className = 'laser';
+                laser.style.left = laserWarning.style.left;
+                gameArea.appendChild(laser);
+                gameArea.removeChild(laserWarning);
+                moveLaser(laser);
+            }, 1000); // 1 second warning
+        }
+
+        function moveLaser(laser) {
+            let pos = 0;
+            let id = setInterval(frame, 5);
+            function frame() {
+                if (pos >= gameArea.clientHeight) {
+                    clearInterval(id);
+                    gameArea.removeChild(laser);
+                } else {
+                    pos += 2;
+                    laser.style.top = pos + 'px';
+                    checkCollision(laser);
+                }
+            }
+        }
+
+        function checkCollision(obstacle) {
+            let playerRect = player.getBoundingClientRect();
+            let obstacleRect = obstacle.getBoundingClientRect();
+            if (!(playerRect.right < obstacleRect.left || 
+                  playerRect.left > obstacleRect.right || 
+                  playerRect.bottom < obstacleRect.top || 
+                  playerRect.top > obstacleRect.bottom)) {
+                endGame(false);
+            }
+        }
+
+        function endGame(victory) {
+            if (victory) {
+                message.innerText = 'You have slain the Monsta!';
+                message.classList.add('rainbow');
+            } else {
+                message.innerText = 'You died!';
+            }
+            message.style.display = 'block';
+            clearInterval(spikeInterval);
+            clearInterval(laserInterval);
+        }
+
+        document.onkeydown = function(e) {
+            switch(e.key) {
+                case 'ArrowLeft':
+                    movePlayer(-10);
+                    break;
+                case 'ArrowRight':
+                    movePlayer(10);
+                    break;
+            }
+        };
+
+        function movePlayer(offset) {
+            let left = parseInt(window.getComputedStyle(player).left);
+            player.style.left = Math.max(0, Math.min(gameArea.clientWidth - player.clientWidth, left + offset)) + 'px';
+            playerPositions.push(player.style.left);
+            if (playerPositions.length > 100) playerPositions.shift(); // Limit array size
+        }
+    </script>
+</body>
+</html>
