@@ -1,39 +1,121 @@
-body {
-    font-family: 'Arial', sans-serif;
-    background-color: #000;
-    color: #fff;
-    text-align: center;
+let currentPhase = 1;
+let player;
+let gameInterval;
+let isGameOver = false;
+
+document.getElementById('level1').addEventListener('click', startGame);
+document.getElementById('main-menu-button').addEventListener('click', goToMainMenu);
+
+function startGame() {
+    document.getElementById('main-menu').classList.add('hidden');
+    document.getElementById('game').classList.remove('hidden');
+    phase1();
 }
 
-.hidden {
-    display: none;
+function goToMainMenu() {
+    clearInterval(gameInterval);
+    document.getElementById('end-screen').classList.add('hidden');
+    document.getElementById('game').classList.add('hidden');
+    document.getElementById('main-menu').classList.remove('hidden');
 }
 
-#spikes, #lasers {
-    width: 100%;
-    height: 300px;
-    position: relative;
-    overflow: hidden;
-    background-color: #333;
+function phase1() {
+    document.getElementById('phase1').classList.remove('hidden');
+    player = document.getElementById('player');
+    document.addEventListener('keydown', handleMovement);
+    spawnSpikes();
 }
 
-#player, #player2, #boss {
-    width: 30px;
-    height: 30px;
-    background-color: #00f;
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
+function handleMovement(e) {
+    const playerRect = player.getBoundingClientRect();
+    if (isGameOver) return;
+
+    switch (e.key) {
+        case 'ArrowUp':
+            if (playerRect.top > 0) player.style.top = `${playerRect.top - 30}px`;
+            break;
+        case 'ArrowDown':
+            if (playerRect.bottom < window.innerHeight) player.style.top = `${playerRect.top + 30}px`;
+            break;
+        case 'ArrowLeft':
+            if (playerRect.left > 0) player.style.left = `${playerRect.left - 30}px`;
+            break;
+        case 'ArrowRight':
+            if (playerRect.right < window.innerWidth) player.style.left = `${playerRect.left + 30}px`;
+            break;
+    }
 }
 
-#boss {
-    background-color: #f00;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
+function spawnSpikes() {
+    gameInterval = setInterval(() => {
+        const spike = document.createElement('div');
+        spike.className = 'spike';
+        spike.style.position = 'absolute';
+        spike.style.width = '10px';
+        spike.style.height = '50px';
+        spike.style.backgroundColor = '#f00';
+        spike.style.left = `${Math.random() * 100}vw`;
+        spike.style.top = '0';
+        document.getElementById('spikes').appendChild(spike);
+        
+        moveSpike(spike);
+    }, 1000);
 }
 
-.phase {
-    margin: 20px 0;
+function moveSpike(spike) {
+    let spikeInterval = setInterval(() => {
+        const spikeRect = spike.getBoundingClientRect();
+        if (spikeRect.top >= window.innerHeight) {
+            clearInterval(spikeInterval);
+            spike.remove();
+        } else {
+            spike.style.top = `${spikeRect.top + 5}px`;
+            if (isCollision(player.getBoundingClientRect(), spikeRect)) {
+                clearInterval(spikeInterval);
+                gameOver();
+            }
+        }
+    }, 30);
+}
+
+function isCollision(rect1, rect2) {
+    return !(rect2.right < rect1.left || 
+             rect2.left > rect1.right || 
+             rect2.bottom < rect1.top || 
+             rect2.top > rect1.bottom);
+}
+
+function gameOver() {
+    isGameOver = true;
+    clearInterval(gameInterval);
+    document.getElementById('phase1').classList.add('hidden');
+    document.getElementById('end-screen').classList.remove('hidden');
+}
+
+function phase2() {
+    document.getElementById('phase1').classList.add('hidden');
+    document.getElementById('phase2').classList.remove('hidden');
+    spawnLasers();
+}
+
+function spawnLasers() {
+    // Implement laser mechanics similarly to spikes
+}
+
+function phase3() {
+    document.getElementById('phase2').classList.add('hidden');
+    document.getElementById('phase3').classList.remove('hidden');
+    
+    document.getElementById('attack').addEventListener('click', attackBoss);
+    document.addEventListener('keydown', (e) => {
+        if (e.key === ' ') {
+            attackBoss();
+        }
+    });
+}
+
+function attackBoss() {
+    // Simulate boss hit and transition
+    document.getElementById('phase3').classList.add('hidden');
+    document.getElementById('end-screen').classList.remove('hidden');
 }
