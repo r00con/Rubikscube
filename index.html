@@ -48,6 +48,7 @@
             game.style.display = "block";
             phase = 1;
             nextPhase();
+            document.addEventListener('keydown', movePlayer); // Add event listener for player movement
         }
 
         function nextPhase() {
@@ -83,19 +84,10 @@
             }
         }
 
-        function useSword(event) {
-            if (event.code === "Space") {
-                sword.style.display = "block";
-                sword.style.left = player.style.left;
-                sword.style.top = player.style.top;
-                setTimeout(() => {
-                    sword.style.display = "none";
-                    gameOver.style.display = "block";
-                    game.style.display = "none";
-                }, 1000); // Short delay for sword hit
-            }
-        }
-
-        function resetGame() {
-            gameOver.style.display = "none";
-            document.getElementById("menu
+        function movePlayer(event) {
+            const step = 10; // Number of pixels to move
+            const playerRect = player.getBoundingClientRect();
+            switch (event.key) {
+                case "ArrowUp":
+                    if (playerRect.top > 0) {
+                        player.style.top = (playerRect.top - step) +
