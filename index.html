@@ -1,120 +1,15 @@
-pip install pygame
-import pygame
-import random
-
-# Initialize Pygame
-pygame.init()
-
-# Constants
-WIDTH, HEIGHT = 800, 600
-FPS = 60
-BOSS_HP = 100000
-DAMAGE_PER_HIT = 10000
-
-# Colors
-WHITE = (255, 255, 255)
-RED = (255, 0, 0)
-GREEN = (0, 255, 0)
-
-# Setup the screen
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Boss Battle Game")
-
-# Load assets
-font = pygame.font.Font(None, 74)
-game_over_font = pygame.font.Font(None, 50)
-
-# Player class
-class Player:
-    def __init__(self):
-        self.rect = pygame.Rect(WIDTH // 2, HEIGHT - 50, 50, 50)
-        self.speed = 5
-        self.is_attacking = False
-
-    def move(self, keys):
-        if keys[pygame.K_LEFT] and self.rect.left > 0:
-            self.rect.x -= self.speed
-        if keys[pygame.K_RIGHT] and self.rect.right < WIDTH:
-            self.rect.x += self.speed
-
-    def attack(self):
-        self.is_attacking = True
-
-# Boss class
-class Boss:
-    def __init__(self):
-        self.hp = BOSS_HP
-        self.rect = pygame.Rect(WIDTH // 2 - 75, 50, 150, 150)
-
-    def take_damage(self, damage):
-        self.hp -= damage
-
-# Game loop
-def game_loop():
-    clock = pygame.time.Clock()
-    player = Player()
-    boss = Boss()
-    phase = 1
-    spikes = []
-    lasers = []
-    running = True
-
-    while running:
-        screen.fill(WHITE)
-        keys = pygame.key.get_pressed()
-        player.move(keys)
-
-        # Phase 1: Dodge spikes
-        if phase == 1:
-            if random.randint(1, 100) < 5:  # Spawn spikes randomly
-                spikes.append(pygame.Rect(random.randint(0, WIDTH - 50), 0, 50, 10))
-
-            for spike in spikes:
-                spike.y += 5
-                if spike.colliderect(player.rect):
-                    running = False  # Player hit by spike
-                pygame.draw.rect(screen, RED, spike)
-
-            if boss.hp < BOSS_HP:  # Transition to phase 2
-                phase = 2
-                print("Boss: grr!")
-
-        # Phase 2: Dodge laser bullets
-        elif phase == 2:
-            if random.randint(1, 100) < 3:  # Spawn lasers randomly
-                lasers.append(pygame.Rect(random.randint(0, WIDTH - 10), 0, 10, 20))
-
-            for laser in lasers:
-                laser.y += 10
-                if laser.colliderect(player.rect):
-                    running = False  # Player hit by laser
-                pygame.draw.rect(screen, GREEN, laser)
-
-            if boss.hp < BOSS_HP - 50000:  # Transition to phase 3
-                phase = 3
-                print("Boss: damn it!")
-
-        # Phase 3: Attack the boss
-        elif phase == 3:
-            if keys[pygame.K_SPACE] and player.is_attacking:
-                boss.take_damage(DAMAGE_PER_HIT)
-                player.is_attacking = False
-
-            if boss.hp <= 0:
-                print("Boss: Nooo!")
-                pygame.time.delay(1000)
-                running = False  # End game
-
-            pygame.draw.rect(screen, (0, 0, 255), boss.rect)  # Draw boss
-
-        # Draw player
-        pygame.draw.rect(screen, (0, 0, 0), player.rect)
-
-        pygame.display.flip()
-        clock.tick(FPS)
-
-    pygame.quit()
-
-# Start the game
-if __name__ == "__main__":
-    game_loop()
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boss Battle Game</title>
+    <style>
+        canvas { background: #000; display: block; margin: 0 auto; }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <script src="game.js"></script>
+</body>
+</html>
