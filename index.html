@@ -6,107 +6,211 @@
     <title>Boss Battle</title>
     <style>
         body {
-            font-family: 'Pixel', sans-serif;
+            font-family: 'Press Start 2P', cursive;
             background-color: #000;
             color: #fff;
             text-align: center;
+            margin: 0;
+            padding: 0;
         }
-        #gameCanvas {
-            border: 1px solid #fff;
+        h1 {
+            font-size: 2em;
+            margin: 20px 0;
         }
-        .hidden {
-            display: none;
+        #menu {
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
         }
-        button {
-            font-family: 'Pixel', sans-serif;
-            font-size: 20px;
+        .button {
+            background-color: #444;
+            color: #fff;
+            border: none;
+            padding: 15px;
             margin: 10px;
-            padding: 10px;
+            font-size: 1em;
+            cursor: pointer;
+            border-radius: 10px;
+            width: 200px;
+        }
+        .button:hover {
+            background-color: #666;
+        }
+        #game {
+            display: none;
+            position: relative;
+            width: 100%;
+            height: 80vh;
+            margin-top: 10vh;
+            overflow: hidden;
+            background-color: black;
+        }
+        .boss {
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 50px;
+            background-color: red;
+        }
+        .player {
+            position: absolute;
+            bottom: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 30px;
+            background-color: blue;
+        }
+        .spike {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-bottom: 20px solid gray;
+        }
+        .laser {
+            position: absolute;
+            width: 5px;
+            height: 40px;
+            background-color: red;
+        }
+        #message {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2em;
+        }
+        #controls {
+            display: none;
+            position: fixed;
+            bottom: 10%;
+            width: 100%;
+            text-align: center;
+        }
+        .arrow {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            background-color: white;
+            color: black;
+            border-radius: 50%;
+            font-size: 1.5em;
+            line-height: 40px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .arrow.up, .arrow.down {
+            display: block;
+            margin: 10px auto;
         }
     </style>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
 <body>
-    <h1>Boss Battle</h1>
-    <div id="mainMenu">
-        <button onclick="startLevel(1)">Level 1</button>
-        <button onclick="startLevel('impossible')">Impossible</button>
+    <div id="menu">
+        <h1>Boss Battle</h1>
+        <button class="button" onclick="startGame('level1')">Level 1</button>
+        <button class="button" onclick="startGame('impossible')">Impossible</button>
     </div>
-    <canvas id="gameCanvas" width="800" height="600" class="hidden"></canvas>
-    <div id="endScreen" class="hidden">
-        <h2>Noooo!</h2>
-        <button onclick="resetGame()">Main Menu</button>
+    <div id="game">
+        <div class="boss" id="boss"></div>
+        <div class="player" id="player"></div>
     </div>
-    <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        let player, boss;
-        let gamePhase = 0;
-        let spikes = [];
-        let lasers = [];
-        let swordActive = false;
+    <div id="message"></div>
+    <div id="controls">
+        <div class="arrow up" onclick="movePlayer(0, -10)">&#9650;</div>
+        <div>
+            <div class="arrow left" onclick="movePlayer(-10, 0)">&#9664;</div>
+            <div class="arrow right" onclick="movePlayer(10, 0)">&#9654;</div>
+        </div>
+        <div class="arrow down" onclick="movePlayer(0, 10)">&#9660;</div>
+    </div>
 
-        function startLevel(level) {
-            document.getElementById('mainMenu').classList.add('hidden');
-            document.getElementById('gameCanvas').classList.remove('hidden');
-            if (level === 1) {
-                gamePhase = 1;
-                initLevel1();
+    <script>
+        let player, boss, message, controls, phase, gameMode;
+
+        function startGame(mode) {
+            gameMode = mode;
+            document.getElementById('menu').style.display = 'none';
+            document.getElementById('game').style.display = 'block';
+            document.getElementById('controls').style.display = 'block';
+            player = document.getElementById('player');
+            boss = document.getElementById('boss');
+            message = document.getElementById('message');
+            controls = document.getElementById('controls');
+            phase = 1;
+            if (mode === 'level1') {
+                level1();
             } else {
-                alert("Impossible level is not implemented yet!");
+                impossibleLevel();
             }
         }
 
-        function initLevel1() {
-            player = { x: 400, y: 550, width: 30, height: 30 };
-            boss = { x: 400, y: 50, width: 50, height: 50 };
-            spikes = [{ x: 200, y: 500, width: 20, height: 20 }];
-            gameLoop();
+        function level1() {
+            if (phase === 1) {
+                let spikeInterval = setInterval(() => {
+                    createSpike();
+                }, 1000);
+                setTimeout(() => {
+                    clearInterval(spikeInterval);
+                    phase++;
+                    level1();
+                }, 15000);
+            } else if (phase === 2) {
+                let laserInterval = setInterval(() => {
+                    createLaser();
+                }, 1000);
+                setTimeout(() => {
+                    clearInterval(laserInterval);
+                    phase++;
+                    level1();
+                }, 15000);
+            } else if (phase === 3) {
+                boss.style.backgroundColor = 'yellow';
+                document.onkeydown = function(e) {
+                    if (e.code === 'Space') {
+                        attackBoss();
+                    }
+                };
+            }
         }
 
-        function gameLoop() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            drawPlayer();
-            drawBoss();
-            drawSpikes();
-            handleCollisions();
-            requestAnimationFrame(gameLoop);
+        function impossibleLevel() {
+            let spikeInterval = setInterval(() => {
+                createSpike();
+            }, 500);
+            setTimeout(() => {
+                clearInterval(spikeInterval);
+                let laserInterval = setInterval(() => {
+                    createLaser();
+                }, 500);
+                setTimeout(() => {
+                    clearInterval(laserInterval);
+                    phase++;
+                    impossibleLevel();
+                }, 10000);
+            }, 10000);
         }
 
-        function drawPlayer() {
-            ctx.fillStyle = 'blue';
-            ctx.fillRect(player.x, player.y, player.width, player.height);
+        function createSpike() {
+            let spike = document.createElement('div');
+            spike.className = 'spike';
+            spike.style.left = Math.random() * gameArea.clientWidth + 'px';
+            gameArea.appendChild(spike);
+            moveSpike(spike);
         }
 
-        function drawBoss() {
-            ctx.fillStyle = 'red';
-            ctx.fillRect(boss.x, boss.y, boss.width, boss.height);
-        }
-
-        function drawSpikes() {
-            ctx.fillStyle = 'pink';
-            spikes.forEach(spike => {
-                ctx.fillRect(spike.x, spike.y, spike.width, spike.height);
-            });
-        }
-
-        function handleCollisions() {
-            // Collision detection logic goes here
-            // If player collides with spikes or boss, handle game over
-        }
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowUp') player.y -= 10;
-            if (e.key === 'ArrowDown') player.y += 10;
-            if (e.key === 'ArrowLeft') player.x -= 10;
-            if (e.key === 'ArrowRight') player.x += 10;
-            if (e.key === ' ') swordActive = true; // Activate sword
-        });
-
-        function resetGame() {
-            gamePhase = 0;
-            document.getElementById('mainMenu').classList.remove('hidden');
-            document.getElementById('gameCanvas').classList.add('hidden');
-            document.getElementById('endScreen').classList.add('hidden');
-        }
-   
+        function moveSpike(spike) {
+            let pos = 0;
+            let id = setInterval(frame, 10);
+            function frame() {
+                if (pos >= gameArea.clientHeight) {
+                    clearInterval(id);
+                    gameArea.removeChild(spike);
+                } else {
