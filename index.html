@@ -1,121 +1,112 @@
-let currentPhase = 1;
-let player;
-let gameInterval;
-let isGameOver = false;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boss Battle</title>
+    <style>
+        body {
+            font-family: 'Pixel', sans-serif;
+            background-color: #000;
+            color: #fff;
+            text-align: center;
+        }
+        #gameCanvas {
+            border: 1px solid #fff;
+        }
+        .hidden {
+            display: none;
+        }
+        button {
+            font-family: 'Pixel', sans-serif;
+            font-size: 20px;
+            margin: 10px;
+            padding: 10px;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body>
+    <h1>Boss Battle</h1>
+    <div id="mainMenu">
+        <button onclick="startLevel(1)">Level 1</button>
+        <button onclick="startLevel('impossible')">Impossible</button>
+    </div>
+    <canvas id="gameCanvas" width="800" height="600" class="hidden"></canvas>
+    <div id="endScreen" class="hidden">
+        <h2>Noooo!</h2>
+        <button onclick="resetGame()">Main Menu</button>
+    </div>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        let player, boss;
+        let gamePhase = 0;
+        let spikes = [];
+        let lasers = [];
+        let swordActive = false;
 
-document.getElementById('level1').addEventListener('click', startGame);
-document.getElementById('main-menu-button').addEventListener('click', goToMainMenu);
-
-function startGame() {
-    document.getElementById('main-menu').classList.add('hidden');
-    document.getElementById('game').classList.remove('hidden');
-    phase1();
-}
-
-function goToMainMenu() {
-    clearInterval(gameInterval);
-    document.getElementById('end-screen').classList.add('hidden');
-    document.getElementById('game').classList.add('hidden');
-    document.getElementById('main-menu').classList.remove('hidden');
-}
-
-function phase1() {
-    document.getElementById('phase1').classList.remove('hidden');
-    player = document.getElementById('player');
-    document.addEventListener('keydown', handleMovement);
-    spawnSpikes();
-}
-
-function handleMovement(e) {
-    const playerRect = player.getBoundingClientRect();
-    if (isGameOver) return;
-
-    switch (e.key) {
-        case 'ArrowUp':
-            if (playerRect.top > 0) player.style.top = `${playerRect.top - 30}px`;
-            break;
-        case 'ArrowDown':
-            if (playerRect.bottom < window.innerHeight) player.style.top = `${playerRect.top + 30}px`;
-            break;
-        case 'ArrowLeft':
-            if (playerRect.left > 0) player.style.left = `${playerRect.left - 30}px`;
-            break;
-        case 'ArrowRight':
-            if (playerRect.right < window.innerWidth) player.style.left = `${playerRect.left + 30}px`;
-            break;
-    }
-}
-
-function spawnSpikes() {
-    gameInterval = setInterval(() => {
-        const spike = document.createElement('div');
-        spike.className = 'spike';
-        spike.style.position = 'absolute';
-        spike.style.width = '10px';
-        spike.style.height = '50px';
-        spike.style.backgroundColor = '#f00';
-        spike.style.left = `${Math.random() * 100}vw`;
-        spike.style.top = '0';
-        document.getElementById('spikes').appendChild(spike);
-        
-        moveSpike(spike);
-    }, 1000);
-}
-
-function moveSpike(spike) {
-    let spikeInterval = setInterval(() => {
-        const spikeRect = spike.getBoundingClientRect();
-        if (spikeRect.top >= window.innerHeight) {
-            clearInterval(spikeInterval);
-            spike.remove();
-        } else {
-            spike.style.top = `${spikeRect.top + 5}px`;
-            if (isCollision(player.getBoundingClientRect(), spikeRect)) {
-                clearInterval(spikeInterval);
-                gameOver();
+        function startLevel(level) {
+            document.getElementById('mainMenu').classList.add('hidden');
+            document.getElementById('gameCanvas').classList.remove('hidden');
+            if (level === 1) {
+                gamePhase = 1;
+                initLevel1();
+            } else {
+                alert("Impossible level is not implemented yet!");
             }
         }
-    }, 30);
-}
 
-function isCollision(rect1, rect2) {
-    return !(rect2.right < rect1.left || 
-             rect2.left > rect1.right || 
-             rect2.bottom < rect1.top || 
-             rect2.top > rect1.bottom);
-}
-
-function gameOver() {
-    isGameOver = true;
-    clearInterval(gameInterval);
-    document.getElementById('phase1').classList.add('hidden');
-    document.getElementById('end-screen').classList.remove('hidden');
-}
-
-function phase2() {
-    document.getElementById('phase1').classList.add('hidden');
-    document.getElementById('phase2').classList.remove('hidden');
-    spawnLasers();
-}
-
-function spawnLasers() {
-    // Implement laser mechanics similarly to spikes
-}
-
-function phase3() {
-    document.getElementById('phase2').classList.add('hidden');
-    document.getElementById('phase3').classList.remove('hidden');
-    
-    document.getElementById('attack').addEventListener('click', attackBoss);
-    document.addEventListener('keydown', (e) => {
-        if (e.key === ' ') {
-            attackBoss();
+        function initLevel1() {
+            player = { x: 400, y: 550, width: 30, height: 30 };
+            boss = { x: 400, y: 50, width: 50, height: 50 };
+            spikes = [{ x: 200, y: 500, width: 20, height: 20 }];
+            gameLoop();
         }
-    });
-}
 
-function attackBoss() {
-    // Simulate boss hit and transition
-    document.getElementById('phase3').classList.add('hidden');
-    document.getElementById('end-screen').classList.remove('hidden');
-}
+        function gameLoop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawPlayer();
+            drawBoss();
+            drawSpikes();
+            handleCollisions();
+            requestAnimationFrame(gameLoop);
+        }
+
+        function drawPlayer() {
+            ctx.fillStyle = 'blue';
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+        }
+
+        function drawBoss() {
+            ctx.fillStyle = 'red';
+            ctx.fillRect(boss.x, boss.y, boss.width, boss.height);
+        }
+
+        function drawSpikes() {
+            ctx.fillStyle = 'pink';
+            spikes.forEach(spike => {
+                ctx.fillRect(spike.x, spike.y, spike.width, spike.height);
+            });
+        }
+
+        function handleCollisions() {
+            // Collision detection logic goes here
+            // If player collides with spikes or boss, handle game over
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowUp') player.y -= 10;
+            if (e.key === 'ArrowDown') player.y += 10;
+            if (e.key === 'ArrowLeft') player.x -= 10;
+            if (e.key === 'ArrowRight') player.x += 10;
+            if (e.key === ' ') swordActive = true; // Activate sword
+        });
+
+        function resetGame() {
+            gamePhase = 0;
+            document.getElementById('mainMenu').classList.remove('hidden');
+            document.getElementById('gameCanvas').classList.add('hidden');
+            document.getElementById('endScreen').classList.add('hidden');
+        }
+   
