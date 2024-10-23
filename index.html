@@ -3,13 +3,224 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Boss Battle Game</title>
+    <title>Boss Battle</title>
     <style>
-        canvas { background: #000; display: block; margin: 0 auto; }
+        @font-face {
+            font-family: 'PixelFont';
+            src: url('https://www.dafont.com/download?file=press_start_2p') format('truetype');
+        }
+        body {
+            font-family: 'PixelFont', Arial, sans-serif;
+            background-color: black;
+            color: white;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        #game {
+            position: relative;
+            width: 100%;
+            height: 80vh;
+            overflow: hidden;
+            background-color: black;
+        }
+        .boss {
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 100px;
+            background-color: red;
+        }
+        .player {
+            position: absolute;
+            bottom: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 50px;
+            background-color: blue;
+        }
+        .spike, .laser-bullet {
+            position: absolute;
+        }
+        .spike {
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-bottom: 30px solid gray;
+        }
+        .laser-bullet {
+            width: 10px;
+            height: 10px;
+            background-color: red;
+        }
+        #message {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2em;
+        }
+        #controls {
+            position: fixed;
+            bottom: 10%;
+            width: 100%;
+            text-align: center;
+        }
+        .arrow {
+            display: inline-block;
+            width: 60px;
+            height: 60px;
+            background-color: white;
+            color: black;
+            border-radius: 50%;
+            font-size: 2em;
+            line-height: 60px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .arrow.left, .arrow.right {
+            margin: 0 10px;
+        }
+        .arrow.up, .arrow.down {
+            display: block;
+            margin: 10px auto;
+        }
     </style>
 </head>
 <body>
-    <canvas id="gameCanvas" width="800" height="600"></canvas>
-    <script src="game.js"></script>
-</body>
-</html>
+    <div id="game">
+        <div class="boss" id="boss"></div>
+        <div class="player" id="player"></div>
+    </div>
+    <div id="message"></div>
+    <div id="controls">
+        <div class="arrow up" onclick="movePlayer(0, -10)">&#9650;</div>
+        <div>
+            <div class="arrow left" onclick="movePlayer(-10, 0)">&#9664;</div>
+            <div class="arrow right" onclick="movePlayer(10, 0)">&#9654;</div>
+        </div>
+        <div class="arrow down" onclick="movePlayer(0, 10)">&#9660;</div>
+    </div>
+
+    <script>
+        let gameArea = document.getElementById('game');
+        let player = document.getElementById('player');
+        let boss = document.getElementById('boss');
+        let message = document.getElementById('message');
+        let phase = 1;
+        let hasSword = false;
+        let bossHP = 100000;
+
+        function startGame() {
+            if (phase === 1) {
+                let spikeInterval = setInterval(() => {
+                    createSpike();
+                }, 1000);
+                setTimeout(() => {
+                    clearInterval(spikeInterval);
+                    boss.innerText = "Grr!";
+                    phase++;
+                    startGame();
+                }, 10000); // 10 seconds for phase 1
+            } else if (phase === 2) {
+                let laserInterval = setInterval(() => {
+                    createLaserBullet();
+                }, 1000);
+                setTimeout(() => {
+                    clearInterval(laserInterval);
+                    boss.innerText = "Damn it!";
+                    phase++;
+                    hasSword = true;
+                    startGame();
+                }, 10000); // 10 seconds for phase 2
+            } else if (phase === 3) {
+                boss.style.backgroundColor = 'green'; // Boss runs
+            }
+        }
+
+        function createSpike() {
+            let spike = document.createElement('div');
+            spike.className = 'spike';
+            spike.style.left = player.style.left;
+            gameArea.appendChild(spike);
+            moveSpike(spike);
+        }
+
+        function moveSpike(spike) {
+            let pos = 0;
+            let id = setInterval(frame, 10);
+            function frame() {
+                if (pos >= gameArea.clientHeight) {
+                    clearInterval(id);
+                    gameArea.removeChild(spike);
+                } else {
+                    pos += 2;
+                    spike.style.top = pos + 'px';
+                    checkCollision(spike);
+                }
+            }
+        }
+
+        function createLaserBullet() {
+            let bullet = document.createElement('div');
+            bullet.className = 'laser-bullet';
+            bullet.style.left = player.style.left;
+            bullet.style.top = '0';
+            gameArea.appendChild(bullet);
+            moveLaserBullet(bullet);
+        }
+
+        function moveLaserBullet(bullet) {
+            let pos = 0;
+            let id = setInterval(frame, 10);
+            function frame() {
+                if (pos >= gameArea.clientHeight) {
+                    clearInterval(id);
+                    gameArea.removeChild(bullet);
+                } else {
+                    pos += 2;
+                    bullet.style.top = pos + 'px';
+                    checkCollision(bullet);
+                }
+            }
+        }
+
+        function checkCollision(obstacle) {
+            let playerRect = player.getBoundingClientRect();
+            let obstacleRect = obstacle.getBoundingClientRect();
+            if (!(playerRect.right < obstacleRect.left || 
+                  playerRect.left > obstacleRect.right || 
+                  playerRect.bottom < obstacleRect.top || 
+                  playerRect.top > obstacleRect.bottom)) {
+                endGame(false);
+            }
+        }
+
+        function endGame(victory) {
+            if (!victory) {
+                message.innerText = 'You died!';
+                message.style.display = 'block';
+            }
+        }
+
+        document.onkeydown = function(e) {
+            switch(e.key) {
+                case 'ArrowLeft':
+                    movePlayer(-10, 0);
+                    break;
+                case 'ArrowRight':
+                    movePlayer(10, 0);
+                    break;
+                case 'ArrowUp':
+                    movePlayer(0, -10);
+                    break;
+                case 'ArrowDown':
+                    movePlayer(0, 10);
+                    break;
+                case ' ':
+                    if (hasSword) hit
