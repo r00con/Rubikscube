@@ -3,224 +3,142 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Boss Battle</title>
+    <title>Boss Battle Game</title>
     <style>
-        @font-face {
-            font-family: 'PixelFont';
-            src: url('https://www.dafont.com/download?file=press_start_2p') format('truetype');
-        }
         body {
-            font-family: 'PixelFont', Arial, sans-serif;
-            background-color: black;
-            color: white;
-            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
             margin: 0;
-            padding: 0;
+            background-color: #111;
+            color: white;
+            font-family: Arial, sans-serif;
         }
-        #game {
-            position: relative;
-            width: 100%;
-            height: 80vh;
-            overflow: hidden;
-            background-color: black;
+        canvas {
+            border: 1px solid white;
         }
-        .boss {
-            position: absolute;
-            top: 20%;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 100px;
-            height: 100px;
-            background-color: red;
-        }
-        .player {
-            position: absolute;
-            bottom: 10%;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 50px;
-            height: 50px;
-            background-color: blue;
-        }
-        .spike, .laser-bullet {
-            position: absolute;
-        }
-        .spike {
-            width: 0;
-            height: 0;
-            border-left: 15px solid transparent;
-            border-right: 15px solid transparent;
-            border-bottom: 30px solid gray;
-        }
-        .laser-bullet {
-            width: 10px;
-            height: 10px;
-            background-color: red;
-        }
-        #message {
+        #end-screen {
             display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 2em;
-        }
-        #controls {
-            position: fixed;
-            bottom: 10%;
-            width: 100%;
             text-align: center;
-        }
-        .arrow {
-            display: inline-block;
-            width: 60px;
-            height: 60px;
-            background-color: white;
-            color: black;
-            border-radius: 50%;
-            font-size: 2em;
-            line-height: 60px;
-            cursor: pointer;
-            user-select: none;
-        }
-        .arrow.left, .arrow.right {
-            margin: 0 10px;
-        }
-        .arrow.up, .arrow.down {
-            display: block;
-            margin: 10px auto;
         }
     </style>
 </head>
 <body>
-    <div id="game">
-        <div class="boss" id="boss"></div>
-        <div class="player" id="player"></div>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <div id="end-screen">
+        <h1>You Win!</h1>
+        <h2>Play Again?</h2>
+        <button onclick="restartGame()">Yes</button>
     </div>
-    <div id="message"></div>
-    <div id="controls">
-        <div class="arrow up" onclick="movePlayer(0, -10)">&#9650;</div>
-        <div>
-            <div class="arrow left" onclick="movePlayer(-10, 0)">&#9664;</div>
-            <div class="arrow right" onclick="movePlayer(10, 0)">&#9654;</div>
-        </div>
-        <div class="arrow down" onclick="movePlayer(0, 10)">&#9660;</div>
-    </div>
-
     <script>
-        let gameArea = document.getElementById('game');
-        let player = document.getElementById('player');
-        let boss = document.getElementById('boss');
-        let message = document.getElementById('message');
-        let phase = 1;
-        let hasSword = false;
-        let bossHP = 100000;
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
 
-        function startGame() {
-            if (phase === 1) {
-                let spikeInterval = setInterval(() => {
-                    createSpike();
-                }, 1000);
-                setTimeout(() => {
-                    clearInterval(spikeInterval);
-                    boss.innerText = "Grr!";
-                    phase++;
-                    startGame();
-                }, 10000); // 10 seconds for phase 1
+        let player = { x: 400, y: 300, width: 30, height: 30 };
+        let spikes = [];
+        let lasers = [];
+        let boss = { x: 100, y: 100, width: 50, height: 50, hp: 100000 };
+        let phase = 0;
+        let interval;
+        let score = 0;
+
+        function spawnSpikes() {
+            for (let i = 0; i < 10; i++) {
+                spikes.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, width: 10, height: 10 });
+            }
+        }
+
+        function spawnLasers() {
+            for (let i = 0; i < 5; i++) {
+                lasers.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height });
+            }
+        }
+
+        function update() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = 'blue';
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+
+            if (phase === 0) {
+                spikes.forEach(spike => {
+                    ctx.fillStyle = 'red';
+                    ctx.fillRect(spike.x, spike.y, spike.width, spike.height);
+                    if (collision(player, spike)) {
+                        alert("You were hit by a spike! Game Over.");
+                        clearInterval(interval);
+                        return;
+                    }
+                });
+            } else if (phase === 1) {
+                lasers.forEach(laser => {
+                    ctx.fillStyle = 'green';
+                    ctx.fillRect(laser.x, laser.y, 10, 10);
+                    if (collision(player, { x: laser.x, y: laser.y, width: 10, height: 10 })) {
+                        alert("You were hit by a laser! Game Over.");
+                        clearInterval(interval);
+                        return;
+                    }
+                });
             } else if (phase === 2) {
-                let laserInterval = setInterval(() => {
-                    createLaserBullet();
-                }, 1000);
-                setTimeout(() => {
-                    clearInterval(laserInterval);
-                    boss.innerText = "Damn it!";
-                    phase++;
-                    hasSword = true;
-                    startGame();
-                }, 10000); // 10 seconds for phase 2
-            } else if (phase === 3) {
-                boss.style.backgroundColor = 'green'; // Boss runs
+                ctx.fillStyle = 'orange';
+                ctx.fillRect(boss.x, boss.y, boss.width, boss.height);
+                ctx.fillStyle = 'white';
+                ctx.fillText(`Boss HP: ${boss.hp}`, 10, 20);
             }
         }
 
-        function createSpike() {
-            let spike = document.createElement('div');
-            spike.className = 'spike';
-            spike.style.left = player.style.left;
-            gameArea.appendChild(spike);
-            moveSpike(spike);
+        function collision(rect1, rect2) {
+            return !(rect1.x > rect2.x + rect2.width || 
+                     rect1.x + rect1.width < rect2.x || 
+                     rect1.y > rect2.y + rect2.height || 
+                     rect1.y + rect1.height < rect2.y);
         }
 
-        function moveSpike(spike) {
-            let pos = 0;
-            let id = setInterval(frame, 10);
-            function frame() {
-                if (pos >= gameArea.clientHeight) {
-                    clearInterval(id);
-                    gameArea.removeChild(spike);
-                } else {
-                    pos += 2;
-                    spike.style.top = pos + 'px';
-                    checkCollision(spike);
+        function keyDownHandler(event) {
+            if (event.key === 'ArrowUp') player.y -= 10;
+            if (event.key === 'ArrowDown') player.y += 10;
+            if (event.key === 'ArrowLeft') player.x -= 10;
+            if (event.key === 'ArrowRight') player.x += 10;
+            if (event.key === ' ' && phase === 2) {
+                boss.hp -= 10000;
+                if (boss.hp <= 0) {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.fillText("Nooo!", canvas.width / 2, canvas.height / 2);
+                    setTimeout(() => {
+                        document.getElementById('end-screen').style.display = 'block';
+                    }, 1000);
                 }
             }
         }
 
-        function createLaserBullet() {
-            let bullet = document.createElement('div');
-            bullet.className = 'laser-bullet';
-            bullet.style.left = player.style.left;
-            bullet.style.top = '0';
-            gameArea.appendChild(bullet);
-            moveLaserBullet(bullet);
-        }
-
-        function moveLaserBullet(bullet) {
-            let pos = 0;
-            let id = setInterval(frame, 10);
-            function frame() {
-                if (pos >= gameArea.clientHeight) {
-                    clearInterval(id);
-                    gameArea.removeChild(bullet);
-                } else {
-                    pos += 2;
-                    bullet.style.top = pos + 'px';
-                    checkCollision(bullet);
-                }
+        function nextPhase() {
+            if (phase === 0) {
+                spawnSpikes();
+                phase++;
+            } else if (phase === 1) {
+                spawnLasers();
+                phase++;
+            } else if (phase === 2) {
+                clearInterval(interval);
+                interval = setInterval(update, 100);
             }
         }
 
-        function checkCollision(obstacle) {
-            let playerRect = player.getBoundingClientRect();
-            let obstacleRect = obstacle.getBoundingClientRect();
-            if (!(playerRect.right < obstacleRect.left || 
-                  playerRect.left > obstacleRect.right || 
-                  playerRect.bottom < obstacleRect.top || 
-                  playerRect.top > obstacleRect.bottom)) {
-                endGame(false);
-            }
+        function restartGame() {
+            player = { x: 400, y: 300, width: 30, height: 30 };
+            spikes = [];
+            lasers = [];
+            boss.hp = 100000;
+            phase = 0;
+            document.getElementById('end-screen').style.display = 'none';
+            nextPhase();
+            interval = setInterval(update, 100);
         }
 
-        function endGame(victory) {
-            if (!victory) {
-                message.innerText = 'You died!';
-                message.style.display = 'block';
-            }
-        }
-
-        document.onkeydown = function(e) {
-            switch(e.key) {
-                case 'ArrowLeft':
-                    movePlayer(-10, 0);
-                    break;
-                case 'ArrowRight':
-                    movePlayer(10, 0);
-                    break;
-                case 'ArrowUp':
-                    movePlayer(0, -10);
-                    break;
-                case 'ArrowDown':
-                    movePlayer(0, 10);
-                    break;
-                case ' ':
-                    if (hasSword) hit
+        document.addEventListener('keydown', keyDownHandler);
+        setTimeout(nextPhase, 2000);
+        interval = setInterval(update, 100);
+    </script>
+</body>
+</html>
