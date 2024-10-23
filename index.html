@@ -60,7 +60,7 @@
                     spike.style.display = "none";
                     phase = 2;
                     nextPhase();
-                }, 2000);
+                }, 10000); // 10 seconds
             } else if (phase === 2) {
                 // Phase 2: Laser Bullets
                 laser.style.display = "block";
@@ -70,11 +70,16 @@
                     laser.style.display = "none";
                     phase = 3;
                     nextPhase();
-                }, 2000);
+                }, 10000); // 10 seconds
             } else if (phase === 3) {
                 // Phase 3: Sword Fight
                 sword.style.display = "block";
                 document.addEventListener('keydown', useSword);
+                setTimeout(() => {
+                    sword.style.display = "none";
+                    gameOver.style.display = "block";
+                    game.style.display = "none";
+                }, 10000); // 10 seconds for sword phase
             }
         }
 
@@ -87,19 +92,10 @@
                     sword.style.display = "none";
                     gameOver.style.display = "block";
                     game.style.display = "none";
-                }, 1000);
+                }, 1000); // Short delay for sword hit
             }
         }
 
         function resetGame() {
             gameOver.style.display = "none";
-            document.getElementById("menu").style.display = "block";
-        }
-
-        window.onload = () => {
-            document.getElementById("menu").style.display = "block";
-        };
-    </script>
-
-</body>
-</html>
+            document.getElementById("menu
