@@ -3,91 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Boss Game</title>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Press Start 2P', cursive; text-align: center; background-color: #000; color: #fff; }
-        #menu, #game, #game-over { display: none; }
-        .button { padding: 10px 20px; margin: 10px; cursor: pointer; font-family: 'Press Start 2P'; }
-        #spike, #laser { position: absolute; background: red; }
-        #sword { position: absolute; background: gold; }
-    </style>
+    <title>Boss Battle</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-
-    <div id="menu">
-        <h1>Megalovania-like Game</h1>
-        <button class="button" onclick="startGame('level1')">Level 1</button>
-        <button class="button" onclick="startGame('impossible')">Impossible</button>
+    <div id="main-menu">
+        <h1>Boss Battle</h1>
+        <button id="level1">Level 1</button>
+        <button id="impossible">Impossible</button>
+    </div>
+    
+    <div id="game" class="hidden">
+        <div id="phase1" class="phase">
+            <h2>Phase 1: Dodge the Spikes!</h2>
+            <div id="spikes"></div>
+            <div id="player"></div>
+        </div>
+        <div id="phase2" class="phase hidden">
+            <h2>Phase 2: Dodge the Lasers!</h2>
+            <div id="lasers"></div>
+            <div id="player2"></div>
+        </div>
+        <div id="phase3" class="phase hidden">
+            <h2>Phase 3: Attack the Boss!</h2>
+            <button id="attack">Attack (Space)</button>
+            <div id="boss"></div>
+        </div>
+        <div id="end-screen" class="hidden">
+            <h2>Noooo!</h2>
+            <button id="main-menu-button">Main Menu</button>
+        </div>
     </div>
 
-    <div id="game">
-        <h2>Boss Fight</h2>
-        <div id="player" style="width: 50px; height: 50px; background: blue; position: absolute; left: 50%; bottom: 0;"></div>
-        <div id="spike" style="width: 10px; height: 10px; background: red;"></div>
-        <div id="laser" style="width: 5px; height: 5px; background: purple;"></div>
-        <div id="sword" style="width: 5px; height: 20px; background: gold; display: none;"></div>
-    </div>
-
-    <div id="game-over">
-        <h2>You Win!</h2>
-        <button class="button" onclick="resetGame()">Main Menu</button>
-    </div>
-
-    <script>
-        let phase = 0;
-        let player = document.getElementById("player");
-        let spike = document.getElementById("spike");
-        let laser = document.getElementById("laser");
-        let sword = document.getElementById("sword");
-        let game = document.getElementById("game");
-        let gameOver = document.getElementById("game-over");
-
-        function startGame(level) {
-            document.getElementById("menu").style.display = "none";
-            game.style.display = "block";
-            phase = 1;
-            nextPhase();
-            document.addEventListener('keydown', movePlayer); // Add event listener for player movement
-        }
-
-        function nextPhase() {
-            if (phase === 1) {
-                // Phase 1: Dodge Spikes
-                spike.style.display = "block";
-                spike.style.top = Math.random() * 300 + "px";
-                spike.style.left = Math.random() * 300 + "px";
-                setTimeout(() => {
-                    spike.style.display = "none";
-                    phase = 2;
-                    nextPhase();
-                }, 10000); // 10 seconds
-            } else if (phase === 2) {
-                // Phase 2: Laser Bullets
-                laser.style.display = "block";
-                laser.style.top = Math.random() * 400 + "px";
-                laser.style.left = Math.random() * 400 + "px";
-                setTimeout(() => {
-                    laser.style.display = "none";
-                    phase = 3;
-                    nextPhase();
-                }, 10000); // 10 seconds
-            } else if (phase === 3) {
-                // Phase 3: Sword Fight
-                sword.style.display = "block";
-                document.addEventListener('keydown', useSword);
-                setTimeout(() => {
-                    sword.style.display = "none";
-                    gameOver.style.display = "block";
-                    game.style.display = "none";
-                }, 10000); // 10 seconds for sword phase
-            }
-        }
-
-        function movePlayer(event) {
-            const step = 10; // Number of pixels to move
-            const playerRect = player.getBoundingClientRect();
-            switch (event.key) {
-                case "ArrowUp":
-                    if (playerRect.top > 0) {
-                        player.style.top = (playerRect.top - step) +
+    <script src="script.js"></script>
+</body>
+</html>
