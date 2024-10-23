@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Boss Battle Supa</title>
+    <title>Boss Battle Game</title>
     <style>
         body {
             display: flex;
@@ -14,9 +14,25 @@
             background-color: #111;
             color: white;
             font-family: Arial, sans-serif;
+            position: relative;
         }
         canvas {
             border: 1px solid white;
+        }
+        #controls {
+            position: absolute;
+            bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            width: 300px;
+        }
+        .button {
+            background-color: #444;
+            border: none;
+            color: white;
+            padding: 15px;
+            cursor: pointer;
+            font-size: 18px;
         }
         #end-screen {
             display: none;
@@ -26,6 +42,16 @@
 </head>
 <body>
     <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <div id="controls">
+        <div>
+            <button class="button" onclick="move('up')">↑</button>
+            <button class="button" onclick="move('down')">↓</button>
+        </div>
+        <div>
+            <button class="button" onclick="move('left')">←</button>
+            <button class="button" onclick="move('right')">→</button>
+        </div>
+    </div>
     <div id="end-screen">
         <h1>You Win!</h1>
         <h2>Play Again?</h2>
@@ -41,7 +67,6 @@
         let boss = { x: 100, y: 100, width: 50, height: 50, hp: 100000 };
         let phase = 0;
         let interval;
-        let score = 0;
 
         function spawnSpikes() {
             for (let i = 0; i < 10; i++) {
@@ -95,19 +120,22 @@
                      rect1.y + rect1.height < rect2.y);
         }
 
-        function keyDownHandler(event) {
-            if (event.key === 'ArrowUp') player.y -= 10;
-            if (event.key === 'ArrowDown') player.y += 10;
-            if (event.key === 'ArrowLeft') player.x -= 10;
-            if (event.key === 'ArrowRight') player.x += 10;
-            if (event.key === ' ' && phase === 2) {
-                boss.hp -= 10000;
-                if (boss.hp <= 0) {
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    ctx.fillText("Nooo!", canvas.width / 2, canvas.height / 2);
-                    setTimeout(() => {
-                        document.getElementById('end-screen').style.display = 'block';
-                    }, 1000);
+        function move(direction) {
+            if (direction === 'up') player.y -= 10;
+            if (direction === 'down') player.y += 10;
+            if (direction === 'left') player.x -= 10;
+            if (direction === 'right') player.x += 10;
+
+            if (phase === 2) {
+                if (collision(player, boss)) {
+                    boss.hp -= 10000;
+                    if (boss.hp <= 0) {
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        ctx.fillText("Nooo!", canvas.width / 2, canvas.height / 2);
+                        setTimeout(() => {
+                            document.getElementById('end-screen').style.display = 'block';
+                        }, 1000);
+                    }
                 }
             }
         }
@@ -136,7 +164,6 @@
             interval = setInterval(update, 100);
         }
 
-        document.addEventListener('keydown', keyDownHandler);
         setTimeout(nextPhase, 2000);
         interval = setInterval(update, 100);
     </script>
