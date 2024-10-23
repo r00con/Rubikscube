@@ -3,20 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Boss Battle</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Megalovania-like Game</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Press Start 2P', cursive; text-align: center; background-color: #000; color: #fff; }
+        #menu, #game, #game-over { display: none; }
+        .button { padding: 10px 20px; margin: 10px; cursor: pointer; font-family: 'Press Start 2P'; }
+        #spike, #laser { position: absolute; background: red; }
+        #sword { position: absolute; background: gold; }
+    </style>
 </head>
 <body>
-    <div id="main-menu" class="menu">
-        <h1>BOSS BATTLE</h1>
-        <button onclick="startLevel('level1')">Level 1</button>
-        <button onclick="startLevel('impossible')">iMPOSSIBLE</button>
+
+    <div id="menu">
+        <h1>Megalovania-like Game</h1>
+        <button class="button" onclick="startGame('level1')">Level 1</button>
+        <button class="button" onclick="startGame('impossible')">Impossible</button>
     </div>
-    <canvas id="gameCanvas"></canvas>
-    <div id="game-over" class="menu">
-        <h1>You Win!</h1>
-        <button onclick="resetGame()">Back to Main Menu</button>
+
+    <div id="game">
+        <h2>Boss Fight</h2>
+        <div id="player" style="width: 50px; height: 50px; background: blue; position: absolute; left: 50%; bottom: 0;"></div>
+        <div id="spike" style="width: 10px; height: 10px; background: red;"></div>
+        <div id="laser" style="width: 5px; height: 5px; background: purple;"></div>
+        <div id="sword" style="width: 5px; height: 20px; background: gold; display: none;"></div>
     </div>
-    <script src="script.js"></script>
+
+    <div id="game-over">
+        <h2>You Win!</h2>
+        <button class="button" onclick="resetGame()">Main Menu</button>
+    </div>
+
+    <script>
+        let phase = 0;
+        let player = document.getElementById("player");
+        let spike = document.getElementById("spike");
+        let laser = document.getElementById("laser");
+        let sword = document.getElementById("sword");
+        let game = document.getElementById("game");
+        let gameOver = document.getElementById("game-over");
+
+        function startGame(level) {
+            document.getElementById("menu").style.display = "none";
+            game.style.display = "block";
+            phase = 1;
+            nextPhase();
+        }
+
+        function nextPhase() {
+            if (phase === 1) {
+                // Phase 1: Dodge Spikes
+                spike.style.display = "block";
+                spike.style.top = Math.random() * 300 + "px";
+                spike.style.left = Math.random() * 300 + "px";
+                setTimeout(() => {
+                    spike.style.display = "none";
+                    phase = 2;
+                    nextPhase();
+                }, 2000);
+            } else if (phase === 2) {
+                // Phase 2: Laser Bullets
+                laser.style.display = "block";
+                laser.style.top = Math.random() * 400 + "px";
+                laser.style.left = Math.random() * 400 + "px";
+                setTimeout(() => {
+                    laser.style.display = "none";
+                    phase = 3;
+                    nextPhase();
+                }, 2000);
+            } else if (phase === 3) {
+                // Phase 3: Sword Fight
+                sword.style.display = "block";
+                document.addEventListener('keydown', useSword);
+            }
+        }
+
+        function useSword(event) {
+            if (event.code === "Space") {
+                sword.style.display = "block";
+                sword.style.left = player.style.left;
+                sword.style.top = player.style.top;
+                setTimeout(() => {
+                    sword.style.display = "none";
+                    gameOver.style.display = "block";
+                    game.style.display = "none";
+                }, 1000);
+            }
+        }
+
+        function resetGame() {
+            gameOver.style.display = "none";
+            document.getElementById("menu").style.display = "block";
+        }
+
+        window.onload = () => {
+            document.getElementById("menu").style.display = "block";
+        };
+    </script>
+
 </body>
 </html>
