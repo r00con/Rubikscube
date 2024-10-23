@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Boss Battle Game</title>
+    <title>Boss Battle</title>
     <style>
         @font-face {
             font-family: 'PixelFont';
@@ -129,7 +129,7 @@
                     clearInterval(spikeInterval);
                     phase++;
                     startGame();
-                }, 30000);
+                }, 10000); // 10 seconds for phase 1
             } else if (phase === 2) {
                 let laserInterval = setInterval(() => {
                     createLaser();
@@ -139,7 +139,7 @@
                     phase++;
                     hasSword = true;
                     startGame();
-                }, 30000);
+                }, 10000); // 10 seconds for phase 2
             } else if (phase === 3) {
                 boss.style.backgroundColor = 'green'; // Boss runs
             }
