@@ -1,171 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Boss Battle Game</title>
-    <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #111;
-            color: white;
-            font-family: Arial, sans-serif;
-            position: relative;
-        }
-        canvas {
-            border: 1px solid white;
-        }
-        #controls {
-            position: absolute;
-            bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            width: 300px;
-        }
-        .button {
-            background-color: #444;
-            border: none;
-            color: white;
-            padding: 15px;
-            cursor: pointer;
-            font-size: 18px;
-        }
-        #end-screen {
-            display: none;
-            text-align: center;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>wowow</title>
+  <style>
+    canvas {
+      display: block;
+      margin: 0 auto;
+      border: 1px solid #000;
+      background-color: #000;
+    }
+    
+    .controls {
+      display: flex;
+      justify-content: center;
+      margin-top: 10px;
+    }
+    
+    .button {
+      background-color: #ccc;
+      border: 1px solid #000;
+      padding: 10px;
+      margin: 5px;
+      cursor: pointer;
+      user-select: none;
+    }
+  </style>
 </head>
 <body>
-    <canvas id="gameCanvas" width="800" height="600"></canvas>
-    <div id="controls">
-        <div>
-            <button class="button" onclick="move('up')">↑</button>
-            <button class="button" onclick="move('down')">↓</button>
-        </div>
-        <div>
-            <button class="button" onclick="move('left')">←</button>
-            <button class="button" onclick="move('right')">→</button>
-        </div>
-    </div>
-    <div id="end-screen">
-        <h1>You Win!</h1>
-        <h2>Play Again?</h2>
-        <button onclick="restartGame()">Yes</button>
-    </div>
-    <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-
-        let player = { x: 400, y: 300, width: 30, height: 30 };
-        let spikes = [];
-        let lasers = [];
-        let boss = { x: 350, y: 100, width: 50, height: 50, hp: 100000 };
-        let phase = 0;
-        let interval;
-
-        function spawnSpikes() {
-            for (let i = 0; i < 10; i++) {
-                spikes.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, width: 10, height: 10 });
-            }
-        }
-
-        function spawnLasers() {
-            for (let i = 0; i < 5; i++) {
-                lasers.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height });
-            }
-        }
-
-        function update() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = 'blue';
-            ctx.fillRect(player.x, player.y, player.width, player.height);
-
-            if (phase === 0) {
-                spikes.forEach(spike => {
-                    ctx.fillStyle = 'red';
-                    ctx.fillRect(spike.x, spike.y, spike.width, spike.height);
-                    if (collision(player, spike)) {
-                        alert("You were hit by a spike! Game Over.");
-                        clearInterval(interval);
-                        return;
-                    }
-                });
-            } else if (phase === 1) {
-                lasers.forEach(laser => {
-                    ctx.fillStyle = 'green';
-                    ctx.fillRect(laser.x, laser.y, 10, 10);
-                    if (collision(player, { x: laser.x, y: laser.y, width: 10, height: 10 })) {
-                        alert("You were hit by a laser! Game Over.");
-                        clearInterval(interval);
-                        return;
-                    }
-                });
-            } else if (phase === 2) {
-                ctx.fillStyle = 'orange';
-                ctx.fillRect(boss.x, boss.y, boss.width, boss.height);
-                ctx.fillStyle = 'white';
-                ctx.fillText(`Boss HP: ${boss.hp}`, 10, 20);
-            }
-        }
-
-        function collision(rect1, rect2) {
-            return !(rect1.x > rect2.x + rect2.width || 
-                     rect1.x + rect1.width < rect2.x || 
-                     rect1.y > rect2.y + rect2.height || 
-                     rect1.y + rect1.height < rect2.y);
-        }
-
-        function move(direction) {
-            if (direction === 'up') player.y -= 10;
-            if (direction === 'down') player.y += 10;
-            if (direction === 'left') player.x -= 10;
-            if (direction === 'right') player.x += 10;
-
-            if (phase === 2) {
-                if (collision(player, boss)) {
-                    boss.hp -= 10000;
-                    if (boss.hp <= 0) {
-                        ctx.clearRect(0, 0, canvas.width, canvas.height);
-                        ctx.fillText("Nooo!", canvas.width / 2, canvas.height / 2);
-                        setTimeout(() => {
-                            document.getElementById('end-screen').style.display = 'block';
-                        }, 1000);
-                    }
-                }
-            }
-        }
-
-        function nextPhase() {
-            if (phase === 0) {
-                spawnSpikes();
-                phase++;
-            } else if (phase === 1) {
-                spawnLasers();
-                phase++;
-            } else if (phase === 2) {
-                clearInterval(interval);
-                interval = setInterval(update, 100);
-            }
-        }
-
-        function restartGame() {
-            player = { x: 400, y: 300, width: 30, height: 30 };
-            spikes = [];
-            lasers = [];
-            boss.hp = 100000;
-            phase = 0;
-            document.getElementById('end-screen').style.display = 'none';
-            nextPhase();
-            interval = setInterval(update, 100);
-        }
-
-        setTimeout(nextPhase, 2000);
-        interval = setInterval(update, 100);
-    </script>
+  <canvas id="gameCanvas" width="800" height="600"></canvas>
+  <div class="controls">
+    <div class="button" data-dir="left">Left</div>
+    <div class="button" data-dir="right">Right</div>
+    <div class="button" data-dir="up">Up</div>
+    <div class="button" data-dir="down">Down</div>
+  </div>
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    const player = { x: 50, y: 300, width: 20, height: 20 };
+    const boss = { x: 700, y: 150, width: 50, height: 50 };
+    
+    function drawGame() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = 'blue';
+      ctx.fillRect(player.x, player.y, player.width, player.height);
+      ctx.fillStyle = 'red';
+      ctx.fillRect(boss.x, boss.y, boss.width, boss.height);
+      ctx.fillStyle = 'white';
+      ctx.fillText('Game Title: wowow', 10, 20);
+    }
+    
+    drawGame();
+    
+    document.querySelectorAll('.button').forEach(button => {
+      button.addEventListener('click', () => {
+        const dir = button.dataset.dir;
+        if (dir === 'left' && player.x > 0) player.x -= 20;
+        if (dir === 'right' && player.x < canvas.width - player.width) player.x += 20;
+        if (dir === 'up' && player.y > 0) player.y -= 20;
+        if (dir === 'down' && player.y < canvas.height - player.height) player.y += 20;
+        drawGame();
+      });
+    });
+  </script>
 </body>
 </html>
