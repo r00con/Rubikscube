@@ -2,21 +2,44 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>supalala</title>
+  <title>wowow</title>
   <style>
-    canvas {
-      display: block;
-      margin: 0 auto;
-      border: 1px solid #000;
-      background-color: #000;
+    body {
+      background-color: #333;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 50px;
     }
-    
+    .gameArea {
+      border: 1px solid #fff;
+      width: 800px;
+      height: 600px;
+      margin: 0 auto;
+      position: relative;
+    }
+    .player, .boss {
+      position: absolute;
+    }
+    .player {
+      width: 20px;
+      height: 20px;
+      background-color: blue;
+      top: 300px;
+      left: 50px;
+    }
+    .boss {
+      width: 50px;
+      height: 50px;
+      background-color: red;
+      top: 150px;
+      right: 50px;
+    }
     .controls {
       display: flex;
       justify-content: center;
-      margin-top: 10px;
+      margin-top: 20px;
     }
-    
     .button {
       background-color: #ccc;
       border: 1px solid #000;
@@ -28,42 +51,17 @@
   </style>
 </head>
 <body>
-  <canvas id="gameCanvas" width="800" height="600"></canvas>
-  <div class="controls">
-    <div class="button" data-dir="left">Left</div>
-    <div class="button" data-dir="right">Right</div>
-    <div class="button" data-dir="up">Up</div>
-    <div class="button" data-dir="down">Down</div>
+  <h1>wowow</h1>
+  <div class="gameArea">
+    <div class="player"></div>
+    <div class="boss"></div>
   </div>
-  <script>
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
-    
-    const player = { x: 50, y: 300, width: 20, height: 20 };
-    const boss = { x: 700, y: 150, width: 50, height: 50 };
-    
-    function drawGame() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = 'blue';
-      ctx.fillRect(player.x, player.y, player.width, player.height);
-      ctx.fillStyle = 'red';
-      ctx.fillRect(boss.x, boss.y, boss.width, boss.height);
-      ctx.fillStyle = 'white';
-      ctx.fillText('Game Title: wowow', 10, 20);
-    }
-    
-    drawGame();
-    
-    document.querySelectorAll('.button').forEach(button => {
-      button.addEventListener('click', () => {
-        const dir = button.dataset.dir;
-        if (dir === 'left' && player.x > 0) player.x -= 20;
-        if (dir === 'right' && player.x < canvas.width - player.width) player.x += 20;
-        if (dir === 'up' && player.y > 0) player.y -= 20;
-        if (dir === 'down' && player.y < canvas.height - player.height) player.y += 20;
-        drawGame();
-      });
-    });
-  </script>
+  <div class="controls">
+    <div class="button">Left</div>
+    <div class="button">Right</div>
+    <div class="button">Up</div>
+    <div class="button">Down</div>
+  </div>
+  <p>This is a basic demo layout. Add JavaScript to make it interactive!</p>
 </body>
 </html>
